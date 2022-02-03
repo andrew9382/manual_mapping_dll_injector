@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\NT">
+      <UniqueIdentifier>{73c1e24f-9adc-4011-9242-1d2a0a684e48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="interface">
+      <UniqueIdentifier>{e22535c3-8f03-4791-ab9d-0474902611a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Start Routine Methods">
+      <UniqueIdentifier>{cf07f31f-124b-4cd4-8639-556a035fcd36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Injection Methods">
+      <UniqueIdentifier>{3a8473fc-a1a1-443b-8aae-b4fb9ffcdac9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Injection Methods">
+      <UniqueIdentifier>{af8cf08a-45b5-45af-878f-f3f51cdce243}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="injection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interface.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="process_info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="import_handler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hijack_thread.cpp">
+      <Filter>Source Files\Start Routine Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="start_routine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="manual_map.cpp">
+      <Filter>Source Files\Injection Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="symbol_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="symbol_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="injection.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Win8.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="Win10.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="Win11.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="Win81.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="NT Defs.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="NT Funcs.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="Win7.h">
+      <Filter>Header Files\NT</Filter>
+    </ClInclude>
+    <ClInclude Include="interface.hpp">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="process_info.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="import_handler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="some_defines.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="start_routine.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="manual_map.hpp">
+      <Filter>Header Files\Injection Methods</Filter>
+    </ClInclude>
+    <ClInclude Include="symbol_loader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="symbol_parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

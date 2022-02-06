@@ -10,6 +10,8 @@
 #define INJ_LOAD_DLL_COPY           0x40
 // ignored if using manual mapping or launch method not NtCreateThreadEx
 
+enum class LAUNCH_METHOD;
+
 enum class INJECTION_MODE
 {
 	IM_MANUAL_MAPPING,
@@ -25,7 +27,7 @@ struct INJECTION_DATA
 	DWORD           flags                      = 0;
 	HANDLE          h_proc                     = 0;     // optional
 	HMODULE         h_out_dll                  = 0;
-	LAUNCH_METHOD   method					   = LAUNCH_METHOD::LM_THREAD_HIJACK;
+	LAUNCH_METHOD   method;
 	DWORD			out						   = 0;
 };
 

@@ -83,15 +83,24 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		
 		fclose(console);
 
-		exit(1);
+		return 1;
 	}
 
 	HANDLE h_proc = OpenProcess(PROCESS_ALL_ACCESS, NULL, proc_id);
 	
 	INJECTION_DATA data;
 	data.h_proc = h_proc;
+	wcscpy(data.dll_path, dll_name);
+	data.method = LAUNCH_METHOD::LM_THREAD_HIJACK;
 
-	Inject(&data);
+	if (!Inject(&data))
+	{
+		ERRLOG("Inject error");
+		
+		fclose(console);
+
+		return 1;
+	}
 
 	//if (!ManualMap(h_proc, dll_name))
 	//{

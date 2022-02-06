@@ -60,6 +60,40 @@ bool IsWin11OrGreater()
 	return (GetOSVersion() >= g_Win11 && GetOSBuildVersion() >= g_Win11_21H2);
 }
 
+template <typename T>
+DWORD GetSymAddressNative(const wchar_t* sym_name, T& func, IMPORT_INDEX mode = IMPORT_INDEX::II_NTDLL)
+{
+	if (!sym_parser.IsReady())
+	{
+		return 0;
+	}
+
+	DWORD RVA = sym_parser.GetSymbolAddress(sym_name);
+	if (!RVA)
+	{
+		return 0;
+	}
+
+	DWORD ret = 0;
+	switch (mode)
+	{
+	case IMPORT_INDEX::II_NTDLL:
+		ret = RVA + (DWORD)g_h_NTDLL;
+		break;
+
+	case IMPORT_INDEX::II_KERNEL32:
+		ret = RVA + (DWORD)g_h_KERNEL32;
+		break;
+	}
+
+	if (ret)
+	{
+		func = (T)ret;
+	}
+
+	return ret;
+}
+
 bool ResolveImports(SymbolLoader* loader)
 {
 	if (!loader)
@@ -87,65 +121,41 @@ bool ResolveImports(SymbolLoader* loader)
 		}
 	}
 
-	SymbolParser sym_parser;
-
 	if (!sym_parser.Initialize(loader))
 	{
 		return false;
 	}
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtQueryObject)))				return false;
+	INIT_WIN32_FUNC(LoadLibraryA, g_h_KERNEL32);
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, LdrGetProcedureAddress)))		return false;
+	if (!NATIVE::p_LoadLibraryA)
+	{
+		return false;
+	}
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, LdrLoadDll)))					return false;
+	if (!GetSymAddressNative(_FUNC_(NtQueryObject)))				return false;
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, RtlFreeHeap)))					return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, LdrpHeap)))					return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, RtlAllocateHeap)))				return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtAllocateVirtualMemory)))		return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtFreeVirtualMemory)))			return false;
+	if (!GetSymAddressNative(_FUNC_(LdrGetProcedureAddress)))		return false;
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, memmove)))						return false;
+	if (!GetSymAddressNative(_FUNC_(LdrLoadDll)))					return false;
+	if (!GetSymAddressNative(_FUNC_(LdrUnloadDll)))					return false;
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtOpenFile)))					return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtClose)))						return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtSetInformationFile)))		return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtQueryInformationFile)))		return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, NtReadFile)))					return false;
+	if (!GetSymAddressNative(_FUNC_(RtlFreeHeap)))					return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpHeap)))						return false;
+	if (!GetSymAddressNative(_FUNC_(RtlAllocateHeap)))				return false;
+	if (!GetSymAddressNative(_FUNC_(NtAllocateVirtualMemory)))		return false;
+	if (!GetSymAddressNative(_FUNC_(NtFreeVirtualMemory)))			return false;
 
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, LdrLockLoaderLock)))			return false;
-	if (	!(GET_ADDR_NT_NATIVE(sym_parser, LdrUnlockLoaderLock)))			return false;
+	if (!GetSymAddressNative(_FUNC_(memmove)))						return false;
+
+	if (!GetSymAddressNative(_FUNC_(NtOpenFile)))					return false;
+	if (!GetSymAddressNative(_FUNC_(NtClose)))						return false;
+	if (!GetSymAddressNative(_FUNC_(NtSetInformationFile)))			return false;
+	if (!GetSymAddressNative(_FUNC_(NtQueryInformationFile)))		return false;
+	if (!GetSymAddressNative(_FUNC_(NtReadFile)))					return false;
+
+	if (!GetSymAddressNative(_FUNC_(LdrLockLoaderLock)))			return false;
+	if (!GetSymAddressNative(_FUNC_(LdrUnlockLoaderLock)))			return false;
 	
 	return true;
-}
-
-DWORD GetSymAddressNative(SymbolParser* sym_parser, const wchar_t* sym_name, IMPORT_INDEX mode = IMPORT_INDEX::II_NTDLL)
-{
-	if (!sym_parser)
-	{
-		return 0;
-	}
-
-	if (!sym_parser->IsReady())
-	{
-		return 0;
-	}
-
-	DWORD RVA = sym_parser->GetSymbolAddress(sym_name);
-	if (!RVA)
-	{
-		return 0;
-	}
-
-	switch (mode)
-	{
-	case IMPORT_INDEX::II_NTDLL:
-		return RVA + (DWORD)g_h_NTDLL;
-
-	case IMPORT_INDEX::II_KERNEL32:
-		return RVA + (DWORD)g_h_KERNEL32;
-	}
-
-	return 0;
 }

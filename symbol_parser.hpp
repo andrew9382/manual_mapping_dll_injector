@@ -21,3 +21,5 @@ public:
 
 	bool IsReady();
 };
+
+inline SymbolParser sym_parser;

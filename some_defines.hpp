@@ -9,6 +9,6 @@
 
 #define ERRLOG(format, ...) printf("[ ERROR ] "##format##"\n", __VA_ARGS__);
 
-#define FUNC_DUMMY(func) f_##func func = nullptr
-
 #define CODE_SEG(seg_name) __declspec(code_seg(seg_name))
+
+#define SUSP_ERR(dword) ((DWORD)dword == -1)

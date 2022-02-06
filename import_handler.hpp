@@ -1,9 +1,15 @@
 #pragma once
 
 #define NT_FUNC(func) inline f_##func func = nullptr
-#define ADDR_FROM_NATIVE(func) func = NATIVE::##func
+#define NT_LOCAL(func) f_##func func = nullptr
+#define INIT_CONSTRUCTOR_NATIVE(func) func = NATIVE::##func
 
-#define GET_ADDR_NT_NATIVE(sym_parser, func) NATIVE::##func = (f_##func)GetSymAddressNative(&sym_parser, L#func)
+#define WIN32_FUNC(func) inline decltype(func)* p_##func = nullptr
+#define WIN32_LOCAL(func) decltype(func)* p_##func = nullptr
+#define INIT_WIN32_FUNC(func, h_k32) NATIVE::p_##func = (decltype(func)*)GetProcAddress(h_k32, #func)
+#define INIT_CONSTRUCTOR_NATIVE_WIN32(func) p_##func = NATIVE::p_##func
+
+#define _FUNC_(func) L#func, NATIVE::##func
 
 #define g_Win8	62
 #define g_Win7	61
@@ -51,6 +57,7 @@ namespace NATIVE
 	NT_FUNC(NtQueryObject);
 	NT_FUNC(LdrGetProcedureAddress);
 	NT_FUNC(LdrLoadDll);
+	NT_FUNC(LdrUnloadDll);
 	NT_FUNC(RtlFreeHeap);
 	NT_FUNC(LdrpHeap);
 	NT_FUNC(RtlAllocateHeap);
@@ -64,7 +71,9 @@ namespace NATIVE
 	NT_FUNC(NtReadFile);
 	NT_FUNC(LdrLockLoaderLock);
 	NT_FUNC(LdrUnlockLoaderLock);
+
+	WIN32_FUNC(LoadLibraryA);
+	WIN32_FUNC(FreeLibrary);
 }
 
 bool ResolveImports(class SymbolLoader* loader);
-DWORD GetSymAddressNative(class SymbolParser* sym_parser, const wchar_t* sym_name, IMPORT_INDEX mode);

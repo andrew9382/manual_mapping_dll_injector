@@ -9,41 +9,53 @@
 #define RELOC_FLAG RELOC_FLAG32
 #endif
 
-using f_DLL_ENTRY_POINT = BOOL (WINAPI*) (HINSTANCE hDll, DWORD dwReason, HINSTANCE pReserved);
-
-struct MANUAL_MAPPING_SHELL_DATA
-{
-	HANDLE			h_proc = 0;
-	wchar_t			dll_path[MAX_PATH] = { 0 };
-	DWORD			flags = 0;
-
-	MANUAL_MAP_FUNCTION_TABLE f_table;
-
-	MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data);
-};
+using f_DLL_ENTRY_POINT  = BOOL     (WINAPI*) (HINSTANCE hDll, DWORD dwReason, HINSTANCE pReserved);
+using f_LoadLibraryA     = HMODULE  (WINAPI*) (LPCSTR moduleName);
 
 struct MANUAL_MAP_FUNCTION_TABLE
 {
-	FUNC_DUMMY(LdrGetProcedureAddress);
-	FUNC_DUMMY(LdrLoadDll);
-	FUNC_DUMMY(RtlFreeHeap);
-	FUNC_DUMMY(LdrpHeap);
-	FUNC_DUMMY(RtlAllocateHeap);
-	FUNC_DUMMY(NtAllocateVirtualMemory);
-	FUNC_DUMMY(NtFreeVirtualMemory);
-	FUNC_DUMMY(memmove);
-	FUNC_DUMMY(NtOpenFile);
-	FUNC_DUMMY(NtClose);
-	FUNC_DUMMY(NtSetInformationFile);
-	FUNC_DUMMY(NtQueryInformationFile);
-	FUNC_DUMMY(NtReadFile);
-	FUNC_DUMMY(LdrLockLoaderLock);
-	FUNC_DUMMY(LdrUnlockLoaderLock);
+	NT_LOCAL(LdrGetProcedureAddress);
+	//NT_LOCAL(LdrLoadDll);
+	//NT_LOCAL(LdrUnloadDll);
+	NT_LOCAL(RtlFreeHeap);
+	NT_LOCAL(LdrpHeap);
+	NT_LOCAL(RtlAllocateHeap);
+	NT_LOCAL(NtAllocateVirtualMemory);
+	NT_LOCAL(NtFreeVirtualMemory);
+	NT_LOCAL(memmove);
+	NT_LOCAL(NtOpenFile);
+	NT_LOCAL(NtClose);
+	NT_LOCAL(NtSetInformationFile);
+	NT_LOCAL(NtQueryInformationFile);
+	NT_LOCAL(NtReadFile);
+	NT_LOCAL(LdrLockLoaderLock);
+	NT_LOCAL(LdrUnlockLoaderLock);
+
+	WIN32_LOCAL(LoadLibraryA); // used temporary
+	WIN32_LOCAL(FreeLibrary); // used temporary
 
 	void* p_LdrpHeap = nullptr;
 
 	MANUAL_MAP_FUNCTION_TABLE();
 };
 
-DWORD __stdcall CODE_SEG(".mmap_seg$1") ManualMapShell(MANUAL_MAPPING_SHELL_DATA* mp_data);
-DWORD __stdcall CODE_SEG(".mmap_seg$2") ManualMapShellEnd();
+struct MANUAL_MAPPING_SHELL_DATA
+{
+	wchar_t         dll_path[MAX_PATH]  = { 0 };
+	DWORD			flags				= 0;
+
+	MANUAL_MAP_FUNCTION_TABLE f_table;
+
+	MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data);
+};
+
+
+struct MM_DEPENDENCY_RECORD
+{
+	struct MM_DEPENDENCY_RECORD* f_link;
+
+	HMODULE h_dll;
+};
+
+DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA* mp_data);
+DWORD CODE_SEG(".mmap_seg$2") __stdcall ManualMapShellEnd();

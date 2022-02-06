@@ -42,12 +42,6 @@ ProcessInfo::ProcessInfo()
 	wait_functions_address[1] = (DWORD)GetProcAddress(h_NTDLL, "NtWaitForSingleObject"          ) + nt_ret_offset;
 	wait_functions_address[2] = (DWORD)GetProcAddress(h_NTDLL, "NtWaitForMultipleObjects"       ) + nt_ret_offset;
 	wait_functions_address[3] = (DWORD)GetProcAddress(h_NTDLL, "NtSignalAndWaitForSingleObject" ) + nt_ret_offset;
-
-	for (auto& el : wait_functions_address)
-	{
-		if (!el)
-			throw std::exception("[ERROR] ProcessInfo(): can`t get address of ntdll.dll function(s)");
-	}
 		
 	if (GetOSBuildVersion() >= g_Win10_1607)
 	{
@@ -57,9 +51,12 @@ ProcessInfo::ProcessInfo()
 			throw std::exception("[ERROR] ProcessInfo(): can`t get HMODULE of win32u.dll");
 
 		wait_functions_address[4] = (DWORD)GetProcAddress(h_win32u, "NtUserMsgWaitForMultipleObjectsEx") + nt_ret_offset;
-		
-		if (!wait_functions_address[4])
-			throw std::exception("[ERROR] ProcessInfo(): can`t get address of ntdll.dll NtUserMsgWaitForMultipleObjectsEx function");
+	}
+
+	for (auto& el : wait_functions_address)
+	{
+		if (!el)
+			throw std::exception("[ERROR] ProcessInfo(): can`t get address of ntdll.dll function(s)");
 	}
 }
 
@@ -215,16 +212,12 @@ bool ProcessInfo::RefreshInformation()
 	{
 		delete[buffer_size] first_process;
 		first_process = nullptr;
-	
-		return RefreshInformation();
 	}
-	else
-	{
-		first_process = (SYSTEM_PROCESS_INFORMATION*)new BYTE[buffer_size];
+
+	first_process = (SYSTEM_PROCESS_INFORMATION*)new BYTE[buffer_size];
 		
-		if (!first_process)
-			return false;
-	}
+	if (!first_process)
+		return false;
 
 	ULONG size_out = NULL;
 	NTSTATUS status = NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS::SystemProcessInformation, first_process, buffer_size, &size_out);
@@ -356,14 +349,14 @@ bool ProcessInfo::IsThreadInAlertableState()
 		else
 			return stack[4] == true;
 	}
-	else if (ctx.Eip == wait_functions_address[3]) //NtSignalAndWaitForSingleObject
+	else if (ctx.Eip == wait_functions_address[3]) // NtSignalAndWaitForSingleObject
 	{
 		if (GetOSVersion() == g_Win7)
 			return stack[4] == true;
 		else
 			return stack[3] == true;
 	}
-	else if (ctx.Eip == wait_functions_address[4]) //NtUserMsgWaitForMultipleObjectsEx
+	else if (ctx.Eip == wait_functions_address[4]) // NtUserMsgWaitForMultipleObjectsEx
 		return (stack[5] & MWMO_ALERTABLE) != 0;
 #endif
 

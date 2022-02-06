@@ -410,14 +410,28 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 	ULONG		state   = 0;
 	ULONG_PTR	cookie  = 0;
 	bool		locked  = false;
+	bool		failed  = false;
 
 	locked = f->LdrLockLoaderLock(NULL, &state, &cookie) == 0;
 
-	DllMain((HINSTANCE)image_base, DLL_PROCESS_ATTACH, NULL);
+	if (!DllMain((HINSTANCE)image_base, DLL_PROCESS_ATTACH, NULL))
+	{
+		failed = true;
+	}
 
 	if (locked)
 	{
 		f->LdrUnlockLoaderLock(NULL, cookie);
+	}
+
+	if (failed)
+	{
+		DeleteAllDependencies(f, imports);
+
+		image_size = 0;
+		f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
+
+		return 0;
 	}
 
 	return 1;

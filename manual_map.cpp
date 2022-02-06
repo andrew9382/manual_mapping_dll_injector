@@ -37,11 +37,7 @@ __forceinline T* _HeapAlloc(MANUAL_MAP_FUNCTION_TABLE* f, size_t size)
 
 __forceinline bool _FreeHeap(MANUAL_MAP_FUNCTION_TABLE* f, void* addr)
 {
-	if (addr)
-	{
-		return (bool)f->RtlFreeHeap(f->p_LdrpHeap, NULL, addr);
-	}
-	return false;
+	return (bool)f->RtlFreeHeap(f->p_LdrpHeap, NULL, addr);
 }
 
 __forceinline void AddDependency(MANUAL_MAP_FUNCTION_TABLE* f, MM_DEPENDENCY_RECORD** rec, HMODULE new_handle)

@@ -102,16 +102,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		return 1;
 	}
 
-	//if (!ManualMap(h_proc, dll_name))
-	//{
-	//	printf("[ERROR] ManualMap error!\n");
-	//	
-	//	CloseHandle(h_proc);
-	//	
-	//	system("pause");
-	//	exit(1);
-	//}
-
 	fclose(console);
 
 	return 0;

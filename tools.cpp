@@ -74,6 +74,13 @@ bool VerifyDLL(const wchar_t* file_path, WORD desired_machine)
 
 	BYTE* file_raw = new BYTE[PAGE_SIZE];
 
+	if (!file_raw)
+	{
+		file.close();
+
+		return false;
+	}
+
 	file.seekg(0, std::ios::beg);
 	file.read((char*)file_raw, PAGE_SIZE);
 	file.close();

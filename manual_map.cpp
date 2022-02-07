@@ -255,13 +255,12 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 
 	// sections mapping
 	IMAGE_SECTION_HEADER* sec = IMAGE_FIRST_SECTION(pe_header);
-	for (DWORD i = 0; i < sections_count; ++i)
+	for (DWORD i = 0; i < sections_count; ++i, ++sec)
 	{
 		if (sec->SizeOfRawData)
 		{
 			f->memmove(image_base + sec->VirtualAddress, dll_raw + sec->PointerToRawData, sec->SizeOfRawData);
 		}
-		++sec;
 	}
 
 	f->memmove(image_base, dll_raw, PAGE_SIZE); // move headers

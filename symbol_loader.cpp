@@ -375,8 +375,7 @@ bool SymbolLoader::Initialize(const wchar_t* dll_path, const wchar_t* pdb_path, 
 
 		wchar_t cache_file[MAX_PATH] = { 0 };
 
-		HRESULT result = URLDownloadToCacheFileW(NULL, url.c_str(), cache_file, MAX_PATH, NULL, NULL);
-		if (FAILED(result))
+		if (FAILED(URLDownloadToCacheFileW(NULL, url.c_str(), cache_file, MAX_PATH, NULL, NULL)))
 		{
 			if (cache_file[0] != '\0')
 			{

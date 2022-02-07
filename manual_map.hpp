@@ -10,7 +10,6 @@
 #endif
 
 using f_DLL_ENTRY_POINT  = BOOL     (WINAPI*) (HINSTANCE hDll, DWORD dwReason, HINSTANCE pReserved);
-using f_LoadLibraryA     = HMODULE  (WINAPI*) (LPCSTR moduleName);
 
 struct MANUAL_MAP_FUNCTION_TABLE
 {

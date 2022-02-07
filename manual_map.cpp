@@ -398,8 +398,8 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 
 	if (opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
 	{
-		IMAGE_TLS_DIRECTORY* TLS		   = (IMAGE_TLS_DIRECTORY*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress + image_base);
-		PIMAGE_TLS_CALLBACK* TLS_callback  = (PIMAGE_TLS_CALLBACK*)(TLS->AddressOfCallBacks + image_base);
+		IMAGE_TLS_DIRECTORY* TLS_dir	   = (IMAGE_TLS_DIRECTORY*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress + image_base);
+		PIMAGE_TLS_CALLBACK* TLS_callback  = (PIMAGE_TLS_CALLBACK*)(TLS_dir->AddressOfCallBacks + image_base);
 
 		for (; TLS_callback && *TLS_callback; ++TLS_callback)
 		{

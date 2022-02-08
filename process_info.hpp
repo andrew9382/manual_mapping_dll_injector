@@ -25,7 +25,7 @@
 
 struct _MODULE_INFO
 {
-	std::shared_ptr<wchar_t[]>	module_name = {0};
+	std::shared_ptr<wchar_t[]>	module_name			= { 0 };
 	size_t						module_name_len		= 0;
 	HMODULE						module_base			= 0;
 	PVOID						module_entry		= 0;
@@ -53,6 +53,8 @@ private:
 	std::vector<_MODULE_INFO*> process_modules;
 
 	DWORD wait_functions_address[5] = { 0 };
+
+	void ClearModulesVec();
 
 public:
 

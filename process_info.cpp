@@ -3,6 +3,20 @@
 
 #define NEXT_SYSTEM_PROCESS_ENTRY(entry) ((SYSTEM_PROCESS_INFORMATION*)((BYTE*)entry + entry->NextEntryOffset))
 
+void ProcessInfo::ClearModulesVec()
+{
+	if (!process_modules.empty())
+	{
+		for (auto& el : process_modules)
+		{
+			if (el)
+			{
+				delete el;
+			}
+		}
+	}
+}
+
 ProcessInfo::ProcessInfo()
 {
 	HMODULE h_NTDLL = GetModuleHandle(L"ntdll.dll");
@@ -73,13 +87,7 @@ ProcessInfo::~ProcessInfo()
 	if (first_process)
 		delete[buffer_size] first_process;
 
-	if (!process_modules.empty())
-	{
-		for (auto& el : process_modules)
-		{
-			delete el;
-		}
-	}
+	ClearModulesVec();
 }
 
 //bool ProcessInfo::SetProcessByName(const wchar_t* proc_name, DWORD desired_access)
@@ -340,10 +348,7 @@ bool ProcessInfo::ReadAllModules()
 		return false;
 	}
 
-	if (!process_modules.empty())
-	{
-		process_modules.clear();
-	}
+	ClearModulesVec();
 
 	void* PEB_addr = GetPEBaddr();
 

@@ -53,9 +53,14 @@ ProcessInfo::ProcessInfo()
 		wait_functions_address[4] = (DWORD)GetProcAddress(h_win32u, "NtUserMsgWaitForMultipleObjectsEx") + nt_ret_offset;
 	}
 
-	for (auto& el : wait_functions_address)
+	for (DWORD i = 0; i < sizeof(wait_functions_address) / sizeof(wait_functions_address[0]); ++i)
 	{
-		if (!el)
+		if (i == NtUserMsgWaitForMultipleObjectsEx_INDEX_IN_ARRAY && !h_win32u)
+		{
+			continue;
+		}
+
+		if (!wait_functions_address[i])
 			throw std::exception("[ERROR] ProcessInfo(): can`t get address of ntdll.dll function(s)");
 	}
 }
@@ -67,6 +72,14 @@ ProcessInfo::~ProcessInfo()
 
 	if (first_process)
 		delete[buffer_size] first_process;
+
+	if (!process_modules.empty())
+	{
+		for (auto& el : process_modules)
+		{
+			delete el;
+		}
+	}
 }
 
 //bool ProcessInfo::SetProcessByName(const wchar_t* proc_name, DWORD desired_access)
@@ -208,6 +221,11 @@ bool ProcessInfo::NextThread()
 
 bool ProcessInfo::RefreshInformation()
 {
+	if (!process_modules.empty())
+	{
+		process_modules.clear();
+	}
+
 	if (first_process)
 	{
 		delete[buffer_size] first_process;
@@ -235,10 +253,11 @@ bool ProcessInfo::RefreshInformation()
 		status = NtQuerySystemInformation(SYSTEM_INFORMATION_CLASS::SystemProcessInformation, first_process, buffer_size, &size_out);
 	}
 
+
 	if (NT_FAIL(status))
 	{
 		delete[buffer_size] first_process;
-		first_process     = nullptr;
+		first_process = nullptr;
 		h_current_process = NULL;
 
 		return false;
@@ -277,7 +296,7 @@ bool ProcessInfo::IsProtectedProcess()
 	return (info != NULL);
 }
 
-void* ProcessInfo::GetTEB()
+void* ProcessInfo::GetTEBaddr()
 {
 	if (!current_thread)
 		return nullptr;
@@ -296,6 +315,153 @@ void* ProcessInfo::GetTEB()
 		return nullptr;
 
 	return TBI.TebBaseAddress;
+}
+
+void* ProcessInfo::GetPEBaddr()
+{
+	if (!current_process || !h_current_process)
+	{
+		return nullptr;
+	}
+
+	PROCESS_BASIC_INFORMATION PBI = { 0 };
+	if (NT_FAIL(NtQueryInformationProcess(h_current_process, PROCESSINFOCLASS::ProcessBasicInformation, &PBI, sizeof(PBI), NULL)))
+	{
+		return nullptr;
+	}
+
+	return PBI.pPEB;
+}
+
+bool ProcessInfo::ReadAllModules()
+{
+	if (!h_current_process)
+	{
+		return false;
+	}
+
+	if (!process_modules.empty())
+	{
+		process_modules.clear();
+	}
+
+	void* PEB_addr = GetPEBaddr();
+
+	if (!PEB_addr)
+	{
+		return false;
+	}
+
+	PEB peb = { 0 };
+
+	if (!ReadProcessMemory(h_current_process, PEB_addr, &peb, sizeof(peb), NULL))
+	{
+		return false;
+	}
+
+	PEB_LDR_DATA ldr = { 0 };
+
+	if (!ReadProcessMemory(h_current_process, peb.Ldr, &ldr, sizeof(ldr), NULL))
+	{
+		return false;
+	}
+
+	void* head_addr = (void*)((BYTE*)peb.Ldr + LDR_LIST_ENTRY_HEAD_OFFSET);
+	void* current_addr = nullptr;
+
+	LIST_ENTRY head		= { 0 };
+	LIST_ENTRY current	= { 0 };
+
+	if (!ReadProcessMemory(h_current_process, head_addr, &head, sizeof(head), NULL))
+	{
+		return false;
+	}
+
+	current_addr = head.Flink;
+
+	if (!ReadProcessMemory(h_current_process, head.Flink, &current, sizeof(current), NULL))
+	{
+		return false;
+	}
+
+	LDR_DATA_TABLE_ENTRY current_entry_data = { 0 };
+	while (current_addr != head_addr)
+	{
+		if (!ReadProcessMemory(h_current_process, current_addr, &current_entry_data, sizeof(current_entry_data), NULL))
+		{
+			return false;
+		}
+
+		DWORD size = current_entry_data.BaseDllName.Length / sizeof(wchar_t) + 1;
+		std::shared_ptr<wchar_t[]> tmp_name_buf(new wchar_t[size]);
+
+		if (!ReadProcessMemory(h_current_process, current_entry_data.BaseDllName.szBuffer, tmp_name_buf.get(), size * sizeof(wchar_t), NULL))
+		{
+			tmp_name_buf.reset();
+
+			return false;
+		}
+
+		_MODULE_INFO* m_info = new _MODULE_INFO;
+
+		m_info->module_base			= (HMODULE)current_entry_data.DllBase;
+		m_info->module_entry		= current_entry_data.EntryPoint;
+		m_info->module_name_len		= size - 1;
+		m_info->module_name.swap(tmp_name_buf);
+
+		process_modules.push_back(m_info);
+
+		current_addr = current.Flink;
+
+		if (!ReadProcessMemory(h_current_process, current.Flink, &current, sizeof(current), NULL))
+		{
+			return false;
+		}
+	}
+}
+
+bool ProcessInfo::GetModuleInfo(const wchar_t* mod_name, _MODULE_INFO* out_module)
+{
+	if (!mod_name)
+	{
+		return false;
+	}
+
+	if (process_modules.empty())
+	{
+		if (!ReadAllModules())
+		{
+			return false;
+		}
+	}
+
+	for (auto& el : process_modules)
+	{
+		if (!_wcsicmp(el->module_name.get(), mod_name))
+		{
+			*out_module = *el;
+		
+			return true;
+		}
+	}
+
+	return false;
+}
+
+HMODULE ProcessInfo::_GetModuleHandle(const wchar_t* mod_name)
+{
+	if (!mod_name)
+	{
+		return 0;
+	}
+
+	_MODULE_INFO info;
+	if (!GetModuleInfo(mod_name, &info))
+	{
+		return 0;
+	}
+
+	return info.module_base;
 }
 
 bool ProcessInfo::IsThreadInAlertableState()
@@ -368,7 +534,7 @@ bool ProcessInfo::IsThreadWorkerThread()
 	if (GetOSVersion() < g_Win10 || !current_thread)
 		return false;
 
-	BYTE* TEB = (BYTE*)GetTEB();
+	BYTE* TEB = (BYTE*)GetTEBaddr();
 	if (!TEB)
 		return false;
 
@@ -398,4 +564,14 @@ const SYSTEM_PROCESS_INFORMATION* ProcessInfo::GetProcessInfo()
 const SYSTEM_THREAD_INFORMATION* ProcessInfo::GetThreadInfo()
 {
 	return current_thread ? current_thread : nullptr;
+}
+
+_MODULE_INFO& _MODULE_INFO::operator=(_MODULE_INFO& other)
+{
+	module_base			= other.module_base;
+	module_name			= other.module_name;
+	module_entry		= other.module_entry;
+	module_name_len		= other.module_name_len;
+
+	return *this;
 }

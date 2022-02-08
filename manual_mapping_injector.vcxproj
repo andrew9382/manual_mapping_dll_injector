@@ -152,9 +152,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="hijack_thread.cpp" />
+    <ClCompile Include="hook_scanner.cpp" />
     <ClCompile Include="import_handler.cpp" />
     <ClCompile Include="injection.cpp" />
-    <ClCompile Include="interface.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manual_map.cpp" />
     <ClCompile Include="process_info.cpp" />
@@ -165,10 +165,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="globals.hpp" />
+    <ClInclude Include="hook_scanner.hpp" />
     <ClInclude Include="import_handler.hpp" />
     <ClInclude Include="includes.hpp" />
     <ClInclude Include="injection.hpp" />
-    <ClInclude Include="interface.hpp" />
     <ClInclude Include="manual_map.hpp" />
     <ClInclude Include="NT Defs.h" />
     <ClInclude Include="NT Funcs.h" />

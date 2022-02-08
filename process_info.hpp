@@ -2,6 +2,10 @@
 
 #define PI_INIT_BUFFER_SIZE 0x10000
 
+#define LDR_LIST_ENTRY_HEAD_OFFSET (sizeof(ULONG) + sizeof(ULONG) + sizeof(HANDLE))
+
+#define NtUserMsgWaitForMultipleObjectsEx_INDEX_IN_ARRAY 4
+
 #define NT_RET_OFFSET_64_WIN7		0x0A //Win7 - Win10 1507
 #define NT_RET_OFFSET_64_WIN10_1511 0x14 //Win10 1511+
 
@@ -19,9 +23,20 @@
 #define TEB_SameTebFlags TEB_SameTebFlags_86
 #endif
 
+struct _MODULE_INFO
+{
+	std::shared_ptr<wchar_t[]>	module_name = {0};
+	size_t						module_name_len		= 0;
+	HMODULE						module_base			= 0;
+	PVOID						module_entry		= 0;
+
+	_MODULE_INFO& operator=(_MODULE_INFO& other);
+};
+
 class ProcessInfo
 {
 private:
+
 	SYSTEM_PROCESS_INFORMATION* first_process   = nullptr;
 	SYSTEM_PROCESS_INFORMATION* current_process = nullptr;
 	SYSTEM_THREAD_INFORMATION*  current_thread  = nullptr;
@@ -30,13 +45,17 @@ private:
 	f_NtQueryInformationThread  NtQueryInformationThread  = nullptr;
 	f_NtQuerySystemInformation  NtQuerySystemInformation  = nullptr;
 
-	HANDLE h_current_process	= NULL;
-	HMODULE h_win32u            = NULL;
-	DWORD  current_thread_index = NULL;
-	DWORD  buffer_size		    = NULL;
+	HANDLE	 h_current_process		= NULL;
+	HMODULE  h_win32u				= NULL;
+	DWORD	 current_thread_index	= NULL;
+	DWORD	 buffer_size			= NULL;
 	
+	std::vector<_MODULE_INFO*> process_modules;
+
 	DWORD wait_functions_address[5] = { 0 };
+
 public:
+
 	ProcessInfo();
 	~ProcessInfo();
 
@@ -54,7 +73,12 @@ public:
 	
 	bool IsProtectedProcess();
 
-	void* GetTEB();
+	void* GetTEBaddr();
+	void* GetPEBaddr();
+
+	bool ReadAllModules();
+	bool GetModuleInfo(const wchar_t* mod_name, _MODULE_INFO* out_module);
+	HMODULE _GetModuleHandle(const wchar_t* mod_name);
 
 	bool IsThreadInAlertableState();
 	bool IsThreadWorkerThread();

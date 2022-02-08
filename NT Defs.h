@@ -355,11 +355,11 @@ typedef struct _IO_STATUS_BLOCK
 
 	ULONG_PTR Information;
 } IO_STATUS_BLOCK, * PIO_STATUS_BLOCK;
-
+                
 typedef struct _PEB_LDR_DATA
 {
 	ULONG		Length;
-	BYTE		Initialized;
+	ULONG		Initialized; // may be BOOLEAN but in my system this 4 bytes long
 	HANDLE		SsHandle;
 	LIST_ENTRY	InLoadOrderModuleListHead;
 	LIST_ENTRY	InMemoryOrderModuleListHead;

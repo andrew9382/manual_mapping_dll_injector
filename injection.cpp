@@ -43,7 +43,7 @@ bool Inject(INJECTION_DATA* data)
 	}
 
 	ACCESS_MASK access_mask = PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION;
-	if (data->mode == INJECTION_MODE::IM_LOAD_LIBRARY_EX_W)
+	if (data->mode == INJECTION_MODE::IM_LOAD_LIBRARY_EX_W && data->method != LAUNCH_METHOD::LM_THREAD_HIJACK)
 	{
 		access_mask |= PROCESS_CREATE_THREAD;
 	}
@@ -111,13 +111,20 @@ bool Inject(INJECTION_DATA* data)
 	}
 #endif
 
+	std::vector<HOOK_SCAN_DATA> hk_vec;
+
 	if (data->mode == INJECTION_MODE::IM_MANUAL_MAPPING)
 	{
+		if (!HookScanAndPatch(&hk_vec, h_proc))
+		{
+			return false;
+		}
+
 		MANUAL_MAPPING_SHELL_DATA mm_data(data);
 
 		size_t mm_size = (DWORD)ManualMapShellEnd - (DWORD)ManualMapShell;
 
-		BYTE* mm_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(MANUAL_MAPPING_SHELL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		BYTE* mm_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(MANUAL_MAPPING_SHELL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 		if (!mm_data_base)
 		{
 			return false;
@@ -150,6 +157,8 @@ bool Inject(INJECTION_DATA* data)
 		
 		VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
 		VirtualFreeEx(h_proc, mm_shell_base, NULL, MEM_RELEASE);
+
+		RestoreHookedFuncs(&hk_vec, h_proc, HOOK_RESTORE_MODE::HRM_RESTORE_HOOK);
 
 		return result;
 	}

@@ -83,6 +83,8 @@ DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWOR
 	if (!shellcode_data)
 	{
 		ERRLOG("ThreadHijack: VirtualAllocEx: %d", GetLastError());
+		
+		VirtualFreeEx(h_proc, shellcode_loc, NULL, MEM_RELEASE);
 
 		ResumeThread(h_thread);
 		CloseHandle(h_thread);
@@ -101,7 +103,8 @@ DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWOR
 		ResumeThread(h_thread);
 		
 		VirtualFreeEx(h_proc, shellcode_loc, NULL, MEM_RELEASE);
-		
+		VirtualFreeEx(h_proc, shellcode_data, NULL, MEM_RELEASE);
+
 		CloseHandle(h_thread);
 
 		return 0;

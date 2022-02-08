@@ -32,9 +32,6 @@
     <ClCompile Include="injection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="interface.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
     <ClCompile Include="process_info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="symbol_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hook_scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,9 +88,6 @@
     <ClInclude Include="Win7.h">
       <Filter>Header Files\NT</Filter>
     </ClInclude>
-    <ClInclude Include="interface.hpp">
-      <Filter>interface</Filter>
-    </ClInclude>
     <ClInclude Include="process_info.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -116,6 +113,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="symbol_parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hook_scanner.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,6 +14,8 @@ void ProcessInfo::ClearModulesVec()
 				delete el;
 			}
 		}
+
+		process_modules.clear();
 	}
 }
 
@@ -371,28 +373,13 @@ bool ProcessInfo::ReadAllModules()
 		return false;
 	}
 
-	void* head_addr = (void*)((BYTE*)peb.Ldr + LDR_LIST_ENTRY_HEAD_OFFSET);
-	void* current_addr = nullptr;
-
-	LIST_ENTRY head		= { 0 };
-	LIST_ENTRY current	= { 0 };
-
-	if (!ReadProcessMemory(h_current_process, head_addr, &head, sizeof(head), NULL))
-	{
-		return false;
-	}
-
-	current_addr = head.Flink;
-
-	if (!ReadProcessMemory(h_current_process, head.Flink, &current, sizeof(current), NULL))
-	{
-		return false;
-	}
+	LIST_ENTRY* last = ldr.InLoadOrderModuleListHead.Blink;
+	LIST_ENTRY* current = ldr.InLoadOrderModuleListHead.Flink;
 
 	LDR_DATA_TABLE_ENTRY current_entry_data = { 0 };
-	while (current_addr != head_addr)
+	while (true)
 	{
-		if (!ReadProcessMemory(h_current_process, current_addr, &current_entry_data, sizeof(current_entry_data), NULL))
+		if (!ReadProcessMemory(h_current_process, current, &current_entry_data, sizeof(current_entry_data), NULL))
 		{
 			return false;
 		}
@@ -416,13 +403,15 @@ bool ProcessInfo::ReadAllModules()
 
 		process_modules.push_back(m_info);
 
-		current_addr = current.Flink;
-
-		if (!ReadProcessMemory(h_current_process, current.Flink, &current, sizeof(current), NULL))
+		if (current == last)
 		{
-			return false;
+			break;
 		}
+
+		current = current_entry_data.InLoadOrderLinks.Flink;
 	}
+
+	return true;
 }
 
 bool ProcessInfo::GetModuleInfo(const wchar_t* mod_name, _MODULE_INFO* out_module)

@@ -1,12 +1,5 @@
 #pragma once
 
-//I honestly can't give proper credit here as most of the stuff is stolen from somewhere ages ago
-//Sources I definitely stole from:
-//https://www.geoffchappell.com
-//https://github.com/DarthTon
-//https://github.com/reactos
-//Bill Gates
-
 #include "Win7.h"
 #include "Win8.h"
 #include "Win81.h"

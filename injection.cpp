@@ -132,6 +132,8 @@ bool Inject(INJECTION_DATA* data)
 
 		if (!WriteProcessMemory(h_proc, mm_data_base, &mm_data, sizeof(mm_data), NULL))
 		{
+			ERRLOG("Inject: WriteProcessMemory error: %d", GetLastError());
+
 			VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
 
 			return false;

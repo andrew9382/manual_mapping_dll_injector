@@ -2,8 +2,6 @@
 
 #define PI_INIT_BUFFER_SIZE 0x10000
 
-#define LDR_LIST_ENTRY_HEAD_OFFSET (sizeof(ULONG) + sizeof(ULONG) + sizeof(HANDLE))
-
 #define NtUserMsgWaitForMultipleObjectsEx_INDEX_IN_ARRAY 4
 
 #define NT_RET_OFFSET_64_WIN7		0x0A //Win7 - Win10 1507

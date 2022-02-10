@@ -14,7 +14,7 @@
 //#define SR_REMOTE_DATA_PLACEHOLDER SR_REMOTE_DATA_PLACEHOLDER_86
 //#endif
 
-using f_Routine = DWORD(__stdcall*)(void* arg);
+using f_Routine = DWORD(__stdcall*)(void* arg_routine);
 
 enum class SR_WORK_STATUS : DWORD
 {
@@ -33,13 +33,16 @@ enum class LAUNCH_METHOD
 
 struct SR_REMOTE_DATA
 {
-	SR_WORK_STATUS  status      = SR_WORK_STATUS::WS_PENDING;
-	DWORD           last_error  = 0;
-	void*           arg         = nullptr;
-	f_Routine       routine		= nullptr;
-	DWORD           ret         = 0;
+	SR_WORK_STATUS  status			= SR_WORK_STATUS::WS_PENDING;
+	DWORD           last_error		= 0;
+	void*           arg_routine		= nullptr;
+	f_Routine       routine			= nullptr;
+	DWORD           ret				= 0;
+	void*			arg_remote_func = nullptr;
+	
 };
 
-DWORD StartRoutine(LAUNCH_METHOD method, HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWORD timeout);
+DWORD StartRoutine(LAUNCH_METHOD method, HANDLE h_proc, f_Routine routine, DWORD flags, void* arg_routine, DWORD* out, DWORD timeout);
 
-DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWORD timeout);
+DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg_routine, DWORD* out, DWORD timeout);
+DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg_routine, DWORD* out, DWORD timeout);

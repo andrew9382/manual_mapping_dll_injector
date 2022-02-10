@@ -296,6 +296,19 @@ DWORD ProcessInfo::GetTID()
 	return MDWD(current_thread->ClientId.UniqueThread);
 }
 
+DWORD ProcessInfo::GetEntryPoint()
+{
+	if (process_modules.empty())
+	{
+		if (!ReadAllModules())
+		{
+			return 0;
+		}
+	}
+
+	return (DWORD)process_modules[0]->module_entry;
+}
+
 bool ProcessInfo::IsProtectedProcess()
 {
 	BYTE info = NULL;

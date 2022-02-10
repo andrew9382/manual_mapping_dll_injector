@@ -156,6 +156,8 @@ bool ResolveImports(SymbolLoader* loader)
 
 	if (!GetSymAddressNative(_FUNC_(LdrLockLoaderLock)))			return false;
 	if (!GetSymAddressNative(_FUNC_(LdrUnlockLoaderLock)))			return false;
+
+	if (!GetSymAddressNative(_FUNC_(NtCreateThreadEx)))				return false;
 	
 	return true;
 }

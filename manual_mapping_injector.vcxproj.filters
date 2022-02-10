@@ -59,6 +59,9 @@
     <ClCompile Include="hook_scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="nt_create_thread_ex.cpp">
+      <Filter>Source Files\Start Routine Methods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="injection.hpp">

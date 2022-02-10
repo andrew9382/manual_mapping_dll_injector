@@ -666,265 +666,265 @@ typedef enum _OBJECT_INFORMATION_CLASS {
 	ObjectTypeInformation
 } OBJECT_INFORMATION_CLASS;
 
-//#ifdef _WIN64
-//
-//typedef ALIGN_86 struct _UNICODE_STRING_32
-//{
-//	WORD	Length;
-//	WORD	MaxLength;
-//	DWORD	szBuffer;
-//} UNICODE_STRING_32, * PUNICODE_STRING_32;
-//
-//typedef ALIGN_86 struct _RTL_BALANCED_NODE_32
-//{
-//	union
-//	{
-//		DWORD Children[2];
-//		struct
-//		{
-//			DWORD Left;
-//			DWORD Right;
-//		};
-//	};
-//
-//	union
-//	{
-//		UCHAR Red		: 1;
-//		UCHAR Balance	: 2;
-//		DWORD ParentValue;
-//	};
-//} RTL_BALANCED_NODE_32, * PRTL_BALANCED_NODE_32;
-//
-//typedef ALIGN_86 struct _SINGLE_LIST_ENTRY_32
-//{
-//	DWORD Next; // -> SINGLE_LIST_ENTRY_32
-//} SINGLE_LIST_ENTRY_32, * PSINGLE_LIST_ENTRY_32;
-//
-//typedef ALIGN_86 struct _LDR_SERVICE_TAG_RECORD_32
-//{
-//	DWORD Next; // -> LDR_SERVICE_TAG_RECORD_32
-//	ULONG ServiceTag;
-//} LDR_SERVICE_TAG_RECORD_32, * PLDR_SERVICE_TAG_RECORD_32;
-//
-//typedef ALIGN_86 struct _LDRP_CSLIST_32
-//{
-//	DWORD Tail; // -> SINGLE_LIST_ENTRY_32
-//} LDRP_CSLIST_32, * PLDRP_CSLIST_32;
-//
-//typedef ALIGN_86 struct _RTL_CRITICAL_SECTION_32
-//{
-//	DWORD	DebugInfo; // -> RTL_CRITICAL_SECTION_DEBUG_32
-//	LONG	LockCount;
-//	LONG	RecursionCount;
-//	DWORD	OwningThread;
-//	DWORD	LockSemaphore;
-//	DWORD	SpinCount;
-//} RTL_CRITICAL_SECTION_32, * PRTL_CRITICAL_SECTION_32;
-//
-//typedef ALIGN_86 struct _RTL_CRITICAL_SECTION_DEBUG_32
-//{
-//	WORD			Type;
-//	WORD			CreatorBackTraceIndex;
-//	DWORD			CriticalSection; // -> RTL_CRITICAL_SECTION_32
-//	LIST_ENTRY32	ProcessLocksList;
-//	DWORD			EntryCount;
-//	DWORD			ContentionCount;
-//	DWORD			Flags;
-//	WORD			CreatorBackTraceIndexHigh;
-//	WORD			SpareWORD;
-//} RTL_CRITICAL_SECTION_DEBUG_32, * PRTL_CRITICAL_SECTION_DEBUG_32, _RTL_RESOURCE_DEBUG_32, RTL_RESOURCE_DEBUG_32, * PRTL_RESOURCE_DEBUG_32;
-//
-//typedef ALIGN_86 struct _PEB_LDR_DATA_32
-//{
-//	ULONG			Length;
-//	BYTE			Initialized;
-//	DWORD			SsHandle;
-//	LIST_ENTRY32	InLoadOrderModuleListHead;
-//	LIST_ENTRY32	InMemoryOrderModuleListHead;
-//	LIST_ENTRY32	InInitializationOrderModuleListHead;
-//	DWORD			EntryInProgress;
-//	BYTE			ShutdownInProgress;
-//	DWORD			ShutdownThreadId;
-//} PEB_LDR_DATA_32, * PPEB_LDR_DATA_32;
-//
-//typedef struct _PEB_32
-//{
-//	BOOLEAN InheritedAddressSpace;
-//	BOOLEAN ReadImageFileExecOptions;
-//	BOOLEAN BeingDebugged;
-//
-//	union
-//	{
-//		UCHAR BitField;
-//		struct
-//		{
-//			UCHAR ImageUsedLargePages			: 1;
-//			UCHAR IsProtectedProcess			: 1;
-//			UCHAR IsImageDynamicallyRelocated	: 1;
-//			UCHAR SkipPatchingUser32Forwarders	: 1;
-//			UCHAR IsPackagedProcess				: 1;
-//			UCHAR IsAppContainer				: 1;
-//			UCHAR IsProtectedProcessLight		: 1;
-//			UCHAR IsLongPathAwareProcess		: 1;
-//		};
-//	};
-//
-//	DWORD Mutant;
-//
-//	DWORD ImageBaseAddress;
-//	DWORD Ldr; // -> PEB_LDR_DATA_32
-//
-//	DWORD ProcessParameters;
-//	DWORD SubSystemData;
-//	DWORD ProcessHeap;
-//	DWORD FastPebLock; // -> RTL_CRITICAL_SECTION_32
-//	DWORD AtlThunkSListPtr;
-//	DWORD IFEOKey;
-//
-//	union
-//	{
-//		ULONG CrossProcessFlags;
-//		struct
-//		{
-//			ULONG ProcessInJob					: 1;
-//			ULONG ProcessInitializing			: 1;
-//			ULONG ProcessUsingVEH				: 1;
-//			ULONG ProcessUsingVCH				: 1;
-//			ULONG ProcessUsingFTH				: 1;
-//			ULONG ProcessPreviouslyThrottled	: 1;
-//			ULONG ProcessCurrentlyThrottled		: 1;
-//			ULONG ProcessImagesHotPatched		: 1;
-//			ULONG ReservedBits0					: 24;
-//		};
-//	};
-//
-//	union
-//	{
-//		DWORD KernelCallbackTable;
-//		DWORD UserSharedInfoPtr;
-//	};
-//
-//	ULONG SystemReserved;
-//	ULONG AtlThunkSListPtr32;
-//	DWORD ApiSetMap;
-//	ULONG TlsExpansionCounter;
-//
-//	DWORD TlsBitmap;
-//	ULONG TlsBitmapBits[2];
-//	DWORD ReadOnlySharedMemoryBase;
-//
-//	union
-//	{
-//		DWORD HotpatchInformation;	// till Win8
-//		DWORD SparePvoid0;			// Win8.1 -> Win10 (1607)
-//		DWORD SharedData;			// Win10 (1703) +
-//	};
-//
-//	DWORD ReadOnlyStaticServerData;
-//	DWORD AnsiCodePageData;
-//	DWORD OemCodePageData;
-//	DWORD UnicodeCaseTableData;
-//	ULONG NumberOfProcessors;
-//	ULONG NtGlobalFlag;
-//	LARGE_INTEGER CriticalSectionTimeout;
-//	DWORD HeapSegmentReserve;
-//	DWORD HeapSegmentCommit;
-//	DWORD HeapDeCommitTotalFreeThreshold;
-//	DWORD HeapDeCommitFreeBlockThreshold;
-//	ULONG NumberOfHeaps;
-//	ULONG MaximumNumberOfHeaps;
-//	DWORD ProcessHeaps;
-//	DWORD GdiSharedHandleTable;
-//	DWORD ProcessStarterHelper;
-//	ULONG GdiDCAttributeList;
-//
-//	DWORD LoaderLock; // -> RTL_CRITICAL_SECTION_32
-//	ULONG OSMajorVersion;
-//	ULONG OSMinorVersion;
-//	USHORT OSBuildNumber;
-//	USHORT OSCSDVersion;
-//} PEB_32, * PPEB_32;
-//
-//typedef ALIGN_86 struct _LDRP_UNICODE_STRING_BUNDLE_32
-//{
-//	UNICODE_STRING_32	String;
-//	WCHAR				StaticBuffer[128];
-//} LDRP_UNICODE_STRING_BUNDLE_32, * PLDRP_UNICODE_STRING_BUNDLE_32;
-//
-//typedef ALIGN_86 struct _LDRP_PATH_SEARCH_CONTEXT_32 //dummy structure, needs to be at least 0x50 bytes in size, members don't matter
-//{
-//	DWORD DllSearchPathOut; // wchar_t *
-//	DWORD unknown_0[3];
-//	DWORD OriginalFullDllName; // wchar_t *
-//	DWORD unknown_1[15];
-//} LDRP_PATH_SEARCH_CONTEXT_32, * PLDRP_PATH_SEARCH_CONTEXT_32;
-//
-//typedef ALIGN_86 struct _RTL_INVERTED_FUNCTION_TABLE_ENTRY_32
-//{
-//	DWORD ExceptionDirectory; // -> IMAGE_RUNTIME_FUNCTION_ENTRY
-//	DWORD ImageBase;
-//	ULONG ImageSize;
-//	ULONG ExceptionDirectorySize;
-//} RTL_INVERTED_FUNCTION_TABLE_ENTRY_32, * PRTL_INVERTED_FUNCTION_TABLE_ENTRY_32;
-//
-//typedef ALIGN_86 struct _RTL_INVERTED_FUNCTION_TABLE_32
-//{
-//	ULONG Count;
-//	ULONG MaxCount;
-//	ULONG Epoch;
-//	UCHAR Overflow;
-//	RTL_INVERTED_FUNCTION_TABLE_ENTRY_32 Entries[ANYSIZE_ARRAY];
-//} RTL_INVERTED_FUNCTION_TABLE_32, * PRTL_INVERTED_FUNCTION_TABLE_32;
-//
-//typedef ALIGN_86 union _LDRP_PATH_SEARCH_OPTIONS_32
-//{
-//	ULONG32 Flags;
-//
-//	struct
-//	{
-//		ULONG32 Unknown;
-//	};
-//} LDRP_PATH_SEARCH_OPTIONS_32, * PLDRP_PATH_SEARCH_OPTIONS_32;
-//
-//typedef ALIGN_86 union _LDRP_LOAD_CONTEXT_FLAGS_32
-//{
-//	ULONG32 Flags;
-//	struct
-//	{
-//		ULONG32 Redirected					: 1;
-//		ULONG32 BaseNameOnly				: 1;
-//		ULONG32 HasFullPath					: 1;
-//		ULONG32 KnownDll					: 1;
-//		ULONG32 SystemImage					: 1;
-//		ULONG32 ExecutableImage				: 1;
-//		ULONG32 AppContainerImage			: 1;
-//		ULONG32 CallInit					: 1;
-//		ULONG32 UserAllocated				: 1;
-//		ULONG32 SearchOnlyFirstPathSegment	: 1;
-//		ULONG32 RedirectedByAPISet			: 1;
-//	};
-//} LDRP_LOAD_CONTEXT_FLAGS_32, * PLDRP_LOAD_CONTEXT_FLAGS_32;
-//
-//typedef struct _RTL_VECTORED_HANDLER_LIST_32
-//{
-//	DWORD			Lock;
-//	LIST_ENTRY32	List;
-//} RTL_VECTORED_HANDLER_LIST_32, * PRTL_VECTORED_HANDLER_LIST_32;
-//
-//typedef struct _RTL_VECTORED_EXCEPTION_ENTRY_32 //Win7 till Win10 1909
-//{
-//	LIST_ENTRY32	List;
-//	DWORD			Flag;
-//	DWORD			VectoredHandler;
-//} RTL_VECTORED_EXCEPTION_ENTRY_32, * PRTL_VECTORED_EXCEPTION_ENTRY_32;
-//
-//typedef struct _RTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32 //Win10 2004+
-//{
-//	LIST_ENTRY32	List;
-//	DWORD			pFlag; //DWORD *
-//	ULONG			RefCount;
-//	DWORD			VectoredHandler; //PVECTORED_EXCEPTION_HANDLER
-//	DWORD			Flag;
-//} RTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32, * PRTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32;
-//
-//#endif
+#ifdef _WIN64
+
+typedef __declspec(align(4)) struct _UNICODE_STRING_32
+{
+	WORD	Length;
+	WORD	MaxLength;
+	DWORD	szBuffer;
+} UNICODE_STRING_32, * PUNICODE_STRING_32;
+
+typedef __declspec(align(4)) struct _RTL_BALANCED_NODE_32
+{
+	union
+	{
+		DWORD Children[2];
+		struct
+		{
+			DWORD Left;
+			DWORD Right;
+		};
+	};
+
+	union
+	{
+		UCHAR Red		: 1;
+		UCHAR Balance	: 2;
+		DWORD ParentValue;
+	};
+} RTL_BALANCED_NODE_32, * PRTL_BALANCED_NODE_32;
+
+typedef struct _SINGLE_LIST_ENTRY_32
+{
+	DWORD Next; // -> SINGLE_LIST_ENTRY_32
+} SINGLE_LIST_ENTRY_32, * PSINGLE_LIST_ENTRY_32;
+
+typedef __declspec(align(4)) struct _LDR_SERVICE_TAG_RECORD_32
+{
+	DWORD Next; // -> LDR_SERVICE_TAG_RECORD_32
+	ULONG ServiceTag;
+} LDR_SERVICE_TAG_RECORD_32, * PLDR_SERVICE_TAG_RECORD_32;
+
+typedef __declspec(align(4)) struct _LDRP_CSLIST_32
+{
+	DWORD Tail; // -> SINGLE_LIST_ENTRY_32
+} LDRP_CSLIST_32, * PLDRP_CSLIST_32;
+
+typedef __declspec(align(4)) struct _RTL_CRITICAL_SECTION_32
+{
+	DWORD	DebugInfo; // -> RTL_CRITICAL_SECTION_DEBUG_32
+	LONG	LockCount;
+	LONG	RecursionCount;
+	DWORD	OwningThread;
+	DWORD	LockSemaphore;
+	DWORD	SpinCount;
+} RTL_CRITICAL_SECTION_32, * PRTL_CRITICAL_SECTION_32;
+
+typedef __declspec(align(4)) struct _RTL_CRITICAL_SECTION_DEBUG_32
+{
+	WORD			Type;
+	WORD			CreatorBackTraceIndex;
+	DWORD			CriticalSection; // -> RTL_CRITICAL_SECTION_32
+	LIST_ENTRY32	ProcessLocksList;
+	DWORD			EntryCount;
+	DWORD			ContentionCount;
+	DWORD			Flags;
+	WORD			CreatorBackTraceIndexHigh;
+	WORD			SpareWORD;
+} RTL_CRITICAL_SECTION_DEBUG_32, * PRTL_CRITICAL_SECTION_DEBUG_32, _RTL_RESOURCE_DEBUG_32, RTL_RESOURCE_DEBUG_32, * PRTL_RESOURCE_DEBUG_32;
+
+typedef __declspec(align(4)) struct _PEB_LDR_DATA_32
+{
+	ULONG			Length;
+	BYTE			Initialized;
+	DWORD			SsHandle;
+	LIST_ENTRY32	InLoadOrderModuleListHead;
+	LIST_ENTRY32	InMemoryOrderModuleListHead;
+	LIST_ENTRY32	InInitializationOrderModuleListHead;
+	DWORD			EntryInProgress;
+	BYTE			ShutdownInProgress;
+	DWORD			ShutdownThreadId;
+} PEB_LDR_DATA_32, * PPEB_LDR_DATA_32;
+
+typedef struct _PEB_32
+{
+	BOOLEAN InheritedAddressSpace;
+	BOOLEAN ReadImageFileExecOptions;
+	BOOLEAN BeingDebugged;
+
+	union
+	{
+		UCHAR BitField;
+		struct
+		{
+			UCHAR ImageUsedLargePages			: 1;
+			UCHAR IsProtectedProcess			: 1;
+			UCHAR IsImageDynamicallyRelocated	: 1;
+			UCHAR SkipPatchingUser32Forwarders	: 1;
+			UCHAR IsPackagedProcess				: 1;
+			UCHAR IsAppContainer				: 1;
+			UCHAR IsProtectedProcessLight		: 1;
+			UCHAR IsLongPathAwareProcess		: 1;
+		};
+	};
+
+	DWORD Mutant;
+
+	DWORD ImageBaseAddress;
+	DWORD Ldr; // -> PEB_LDR_DATA_32
+
+	DWORD ProcessParameters;
+	DWORD SubSystemData;
+	DWORD ProcessHeap;
+	DWORD FastPebLock; // -> RTL_CRITICAL_SECTION_32
+	DWORD AtlThunkSListPtr;
+	DWORD IFEOKey;
+
+	union
+	{
+		ULONG CrossProcessFlags;
+		struct
+		{
+			ULONG ProcessInJob					: 1;
+			ULONG ProcessInitializing			: 1;
+			ULONG ProcessUsingVEH				: 1;
+			ULONG ProcessUsingVCH				: 1;
+			ULONG ProcessUsingFTH				: 1;
+			ULONG ProcessPreviouslyThrottled	: 1;
+			ULONG ProcessCurrentlyThrottled		: 1;
+			ULONG ProcessImagesHotPatched		: 1;
+			ULONG ReservedBits0					: 24;
+		};
+	};
+
+	union
+	{
+		DWORD KernelCallbackTable;
+		DWORD UserSharedInfoPtr;
+	};
+
+	ULONG SystemReserved;
+	ULONG AtlThunkSListPtr32;
+	DWORD ApiSetMap;
+	ULONG TlsExpansionCounter;
+
+	DWORD TlsBitmap;
+	ULONG TlsBitmapBits[2];
+	DWORD ReadOnlySharedMemoryBase;
+
+	union
+	{
+		DWORD HotpatchInformation;	// till Win8
+		DWORD SparePvoid0;			// Win8.1 -> Win10 (1607)
+		DWORD SharedData;			// Win10 (1703) +
+	};
+
+	DWORD ReadOnlyStaticServerData;
+	DWORD AnsiCodePageData;
+	DWORD OemCodePageData;
+	DWORD UnicodeCaseTableData;
+	ULONG NumberOfProcessors;
+	ULONG NtGlobalFlag;
+	LARGE_INTEGER CriticalSectionTimeout;
+	DWORD HeapSegmentReserve;
+	DWORD HeapSegmentCommit;
+	DWORD HeapDeCommitTotalFreeThreshold;
+	DWORD HeapDeCommitFreeBlockThreshold;
+	ULONG NumberOfHeaps;
+	ULONG MaximumNumberOfHeaps;
+	DWORD ProcessHeaps;
+	DWORD GdiSharedHandleTable;
+	DWORD ProcessStarterHelper;
+	ULONG GdiDCAttributeList;
+
+	DWORD LoaderLock; // -> RTL_CRITICAL_SECTION_32
+	ULONG OSMajorVersion;
+	ULONG OSMinorVersion;
+	USHORT OSBuildNumber;
+	USHORT OSCSDVersion;
+} PEB_32, * PPEB_32;
+
+typedef __declspec(align(4)) struct _LDRP_UNICODE_STRING_BUNDLE_32
+{
+	UNICODE_STRING_32	String;
+	WCHAR				StaticBuffer[128];
+} LDRP_UNICODE_STRING_BUNDLE_32, * PLDRP_UNICODE_STRING_BUNDLE_32;
+
+typedef __declspec(align(4)) struct _LDRP_PATH_SEARCH_CONTEXT_32 //dummy structure, needs to be at least 0x50 bytes in size, members don't matter
+{
+	DWORD DllSearchPathOut; // wchar_t *
+	DWORD unknown_0[3];
+	DWORD OriginalFullDllName; // wchar_t *
+	DWORD unknown_1[15];
+} LDRP_PATH_SEARCH_CONTEXT_32, * PLDRP_PATH_SEARCH_CONTEXT_32;
+
+typedef __declspec(align(4)) struct _RTL_INVERTED_FUNCTION_TABLE_ENTRY_32
+{
+	DWORD ExceptionDirectory; // -> IMAGE_RUNTIME_FUNCTION_ENTRY
+	DWORD ImageBase;
+	ULONG ImageSize;
+	ULONG ExceptionDirectorySize;
+} RTL_INVERTED_FUNCTION_TABLE_ENTRY_32, * PRTL_INVERTED_FUNCTION_TABLE_ENTRY_32;
+
+typedef __declspec(align(4)) struct _RTL_INVERTED_FUNCTION_TABLE_32
+{
+	ULONG Count;
+	ULONG MaxCount;
+	ULONG Epoch;
+	UCHAR Overflow;
+	RTL_INVERTED_FUNCTION_TABLE_ENTRY_32 Entries[ANYSIZE_ARRAY];
+} RTL_INVERTED_FUNCTION_TABLE_32, * PRTL_INVERTED_FUNCTION_TABLE_32;
+
+typedef __declspec(align(4)) union _LDRP_PATH_SEARCH_OPTIONS_32
+{
+	ULONG32 Flags;
+
+	struct
+	{
+		ULONG32 Unknown;
+	};
+} LDRP_PATH_SEARCH_OPTIONS_32, * PLDRP_PATH_SEARCH_OPTIONS_32;
+
+typedef __declspec(align(4)) union _LDRP_LOAD_CONTEXT_FLAGS_32
+{
+	ULONG32 Flags;
+	struct
+	{
+		ULONG32 Redirected					: 1;
+		ULONG32 BaseNameOnly				: 1;
+		ULONG32 HasFullPath					: 1;
+		ULONG32 KnownDll					: 1;
+		ULONG32 SystemImage					: 1;
+		ULONG32 ExecutableImage				: 1;
+		ULONG32 AppContainerImage			: 1;
+		ULONG32 CallInit					: 1;
+		ULONG32 UserAllocated				: 1;
+		ULONG32 SearchOnlyFirstPathSegment	: 1;
+		ULONG32 RedirectedByAPISet			: 1;
+	};
+} LDRP_LOAD_CONTEXT_FLAGS_32, * PLDRP_LOAD_CONTEXT_FLAGS_32;
+
+typedef struct _RTL_VECTORED_HANDLER_LIST_32
+{
+	DWORD			Lock;
+	LIST_ENTRY32	List;
+} RTL_VECTORED_HANDLER_LIST_32, * PRTL_VECTORED_HANDLER_LIST_32;
+
+typedef struct _RTL_VECTORED_EXCEPTION_ENTRY_32 //Win7 till Win10 1909
+{
+	LIST_ENTRY32	List;
+	DWORD			Flag;
+	DWORD			VectoredHandler;
+} RTL_VECTORED_EXCEPTION_ENTRY_32, * PRTL_VECTORED_EXCEPTION_ENTRY_32;
+
+typedef struct _RTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32 //Win10 2004+
+{
+	LIST_ENTRY32	List;
+	DWORD			pFlag; //DWORD *
+	ULONG			RefCount;
+	DWORD			VectoredHandler; //PVECTORED_EXCEPTION_HANDLER
+	DWORD			Flag;
+} RTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32, * PRTL_VECTORED_EXCEPTION_ENTRY_WIN10_2004_32;
+
+#endif

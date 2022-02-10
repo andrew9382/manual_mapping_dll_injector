@@ -90,8 +90,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 	INJECTION_DATA data;
 	data.h_proc = h_proc;
+	data.flags |= INJ_CTX_ALL;
 	wcscpy(data.dll_path, dll_name);
-	data.method = LAUNCH_METHOD::LM_THREAD_HIJACK;
+	data.method = LAUNCH_METHOD::LM_NT_CREATE_THREAD_EX;
 
 	if (!Inject(&data))
 	{

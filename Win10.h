@@ -103,7 +103,7 @@ typedef struct _LDR_DATA_TABLE_ENTRY_WIN10
 
 #ifdef _WIN64
 
-typedef ALIGN_86 struct _LDR_DDAG_NODE_WIN10_32
+typedef __declspec(align(4)) struct _LDR_DDAG_NODE_WIN10_32
 {
 	LIST_ENTRY32			Modules;
 	DWORD					ServiceTagList; // -> LDR_SERVICE_TAG_RECORD_32

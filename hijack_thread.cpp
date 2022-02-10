@@ -1,7 +1,12 @@
 #include "includes.hpp"
 
-DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWORD timeout)
+DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg_routine, DWORD* out, DWORD timeout)
 {
+	if (!h_proc || !routine || !arg_routine || !out || !timeout)
+	{
+		return 0;
+	}
+
 	ProcessInfo PI;
 
 	if (!PI.SetProcess(h_proc))
@@ -93,8 +98,11 @@ DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg, DWORD* out, DWOR
 	}
 
 	SR_REMOTE_DATA data;
-	data.routine = routine;
-	data.arg = arg;
+
+	ZeroMem(&data);
+
+	data.routine			= routine;
+	data.arg_routine		= arg_routine;
 
 	if (!WriteProcessMemory(h_proc, shellcode_data, &data, sizeof(data), NULL))
 	{

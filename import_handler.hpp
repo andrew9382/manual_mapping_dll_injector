@@ -45,6 +45,7 @@ namespace NATIVE
 	NT_FUNC(NtReadFile);
 	NT_FUNC(LdrLockLoaderLock);
 	NT_FUNC(LdrUnlockLoaderLock);
+	NT_FUNC(NtCreateThreadEx);
 
 	WIN32_FUNC(LoadLibraryA);
 	WIN32_FUNC(FreeLibrary);

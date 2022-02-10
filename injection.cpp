@@ -155,7 +155,7 @@ bool Inject(INJECTION_DATA* data)
 			return false;
 		}
 
-		DWORD result = StartRoutine(data->method, h_proc, (f_Routine)mm_shell_base, mm_data_base, &data->out, 2000);
+		DWORD result = StartRoutine(data->method, h_proc, (f_Routine)mm_shell_base, data->flags, mm_data_base, &data->out, 2000);
 		
 		VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
 		VirtualFreeEx(h_proc, mm_shell_base, NULL, MEM_RELEASE);

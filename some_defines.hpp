@@ -12,3 +12,14 @@
 #define CODE_SEG(seg_name) __declspec(code_seg(seg_name))
 
 #define SUSP_ERR(dword) ((DWORD)dword == -1)
+
+#define ZeroMem(ptr) memset(ptr, 0, sizeof(*(ptr))) 
+
+#define ALIGN_64 __declspec(align(8))
+#define ALIGN_86 __declspec(align(4))
+
+#ifdef _WIN64
+#define ALIGN ALIGN_64
+#else
+#define ALIGN ALIGN_86
+#endif

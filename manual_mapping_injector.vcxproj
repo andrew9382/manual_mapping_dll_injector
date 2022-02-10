@@ -157,6 +157,7 @@
     <ClCompile Include="injection.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manual_map.cpp" />
+    <ClCompile Include="nt_create_thread_ex.cpp" />
     <ClCompile Include="process_info.cpp" />
     <ClCompile Include="start_routine.cpp" />
     <ClCompile Include="symbol_loader.cpp" />

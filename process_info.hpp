@@ -71,6 +71,8 @@ public:
 	DWORD GetPID();
 	DWORD GetTID();
 	
+	DWORD GetEntryPoint();
+
 	bool IsProtectedProcess();
 
 	void* GetTEBaddr();

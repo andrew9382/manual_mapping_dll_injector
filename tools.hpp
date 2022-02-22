@@ -2,10 +2,13 @@
 
 DWORD GetProcId(const wchar_t* proc_name);
 
-DWORD GetOwnModulePathW(wchar_t* mod_name_buf, size_t buf_size);
+DWORD GetOwnModuleFolderPathW(wchar_t* mod_name_buf, size_t buf_size);
+DWORD GetOwnModuleFullPathW(wchar_t* mod_name_buf, size_t buf_size);
 
 bool FileExists(const wchar_t* file_path);
 
 bool VerifyDLL(const wchar_t* file_path, WORD desired_machine);
 
 bool IsNativeProcess(HANDLE h_proc);
+
+DWORD IsElevatedProcess(HANDLE h_proc);

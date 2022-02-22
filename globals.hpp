@@ -7,6 +7,11 @@ inline HINSTANCE g_h_current_module;
 inline DWORD g_os_version;
 inline DWORD g_os_build_number;
 
+inline bool g_executing_finished;
+
+inline wchar_t g_path_to_this_module[MAX_PATH];
+inline wchar_t g_path_to_this_module_folder[MAX_PATH];
+
 #define g_Win8	62
 #define g_Win7	61
 #define g_Win81	63

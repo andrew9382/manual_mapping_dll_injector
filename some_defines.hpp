@@ -7,7 +7,10 @@
 
 #define PAGE_SIZE 0x1000
 
-#define ERRLOG(format, ...) printf("[ ERROR ] "##format##"\n", __VA_ARGS__);
+#define _LOG(format, type, ...) printf("[ "##type" ] "##format"\n", __VA_ARGS__)
+#define ERRLOG(format, ...) _LOG(format, "ERROR", __VA_ARGS__)
+#define SUCCLOG(format, ...) _LOG(format, "SUCCESS", __VA_ARGS__)
+#define LOG(format, ...) _LOG(format, "LOG", __VA_ARGS__)
 
 #define CODE_SEG(seg_name) __declspec(code_seg(seg_name))
 

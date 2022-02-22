@@ -106,6 +106,8 @@ bool CompareFuncs(std::vector<HOOK_SCAN_DATA>* hk_vec)
 			{
 				el.hooked = true;
 			
+				LOG("%s hooked", el.func_name.c_str());
+
 				break;
 			}
 		}
@@ -131,6 +133,8 @@ bool RestoreHookedFuncs(std::vector<HOOK_SCAN_DATA>* hk_vec, HANDLE h_proc, HOOK
 				{
 					return false;
 				}
+
+				LOG("%s original bytes restored", el.func_name.c_str());
 			}
 			else
 			{
@@ -138,6 +142,8 @@ bool RestoreHookedFuncs(std::vector<HOOK_SCAN_DATA>* hk_vec, HANDLE h_proc, HOOK
 				{
 					return false;
 				}
+
+				LOG("%s hook bytes restored", el.func_name.c_str());
 			}
 		}
 	}

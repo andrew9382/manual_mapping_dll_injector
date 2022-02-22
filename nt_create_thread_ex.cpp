@@ -146,7 +146,7 @@ DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg
 		}
 	}
 
-	printf("%d", GetThreadId(h_thread));
+	LOG("%d", GetThreadId(h_thread));
 
 	DWORD wait_ret = WaitForSingleObject(h_thread, timeout);
 	if (wait_ret != WAIT_OBJECT_0)

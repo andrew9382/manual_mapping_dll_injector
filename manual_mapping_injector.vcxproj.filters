@@ -12,9 +12,6 @@
     <Filter Include="Header Files\NT">
       <UniqueIdentifier>{73c1e24f-9adc-4011-9242-1d2a0a684e48}</UniqueIdentifier>
     </Filter>
-    <Filter Include="interface">
-      <UniqueIdentifier>{e22535c3-8f03-4791-ab9d-0474902611a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Start Routine Methods">
       <UniqueIdentifier>{cf07f31f-124b-4cd4-8639-556a035fcd36}</UniqueIdentifier>
     </Filter>
@@ -26,7 +23,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="dll_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="injection.cpp">
@@ -61,6 +58,9 @@
     </ClCompile>
     <ClCompile Include="nt_create_thread_ex.cpp">
       <Filter>Source Files\Start Routine Methods</Filter>
+    </ClCompile>
+    <ClCompile Include="hijack_handle.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +119,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hook_scanner.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="externs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hijack_handle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

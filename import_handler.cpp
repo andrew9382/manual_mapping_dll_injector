@@ -101,6 +101,11 @@ bool ResolveImports(SymbolLoader* loader)
 		return false;
 	}
 
+	if (!loader->IsReady())
+	{
+		return false;
+	}
+
 	if (!g_h_NTDLL)
 	{
 		g_h_NTDLL = LoadLibraryW(L"ntdll.dll");
@@ -134,6 +139,7 @@ bool ResolveImports(SymbolLoader* loader)
 	}
 
 	if (!GetSymAddressNative(_FUNC_(NtQueryObject)))				return false;
+	if (!GetSymAddressNative(_FUNC_(NtQuerySystemInformation)))		return false;
 
 	if (!GetSymAddressNative(_FUNC_(LdrGetProcedureAddress)))		return false;
 

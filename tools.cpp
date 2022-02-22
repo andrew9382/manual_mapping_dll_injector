@@ -9,7 +9,7 @@ DWORD GetProcId(const wchar_t* proc_name)
 
 	if (h_snap == INVALID_HANDLE_VALUE)
 	{
-		printf("[ERROR] CreateToolhelp32Snapshot: %d\n", GetLastError());
+		ERRLOG("CreateToolhelp32Snapshot: % d\n", GetLastError());
 		return NULL;
 	}
 	if (Process32First(h_snap, &p_entry))
@@ -28,7 +28,7 @@ DWORD GetProcId(const wchar_t* proc_name)
 	return proc_id;
 }
 
-DWORD GetOwnModulePathW(wchar_t* mod_name_buf, size_t buf_size)
+DWORD GetOwnModuleFolderPathW(wchar_t* mod_name_buf, size_t buf_size)
 {
 	DWORD mod_name_len = GetModuleFileNameW(g_h_current_module, mod_name_buf, buf_size);
 
@@ -40,6 +40,18 @@ DWORD GetOwnModulePathW(wchar_t* mod_name_buf, size_t buf_size)
 	mod_name_buf += mod_name_len;
 	while (*(--mod_name_buf - 1) != '\\');
 	*mod_name_buf = '\0';
+
+	return mod_name_len;
+}
+
+DWORD GetOwnModuleFullPathW(wchar_t* mod_name_buf, size_t buf_size)
+{
+	DWORD mod_name_len = GetModuleFileNameW(g_h_current_module, mod_name_buf, buf_size);
+
+	if (!mod_name_len || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+		return 0;
+	}
 
 	return mod_name_len;
 }
@@ -127,4 +139,26 @@ bool IsNativeProcess(HANDLE h_proc)
 	IsWow64Process(h_proc, &wow64);
 
 	return (wow64 == FALSE);
+}
+
+DWORD IsElevatedProcess(HANDLE h_proc)
+{
+	HANDLE h_token = 0;
+	if (!OpenProcessToken(h_proc, TOKEN_QUERY, &h_token))
+	{
+		return -1;
+	}
+
+	TOKEN_ELEVATION te = { 0 };
+	DWORD size_out = 0;
+	if (!GetTokenInformation(h_token, TOKEN_INFORMATION_CLASS::TokenElevation, &te, sizeof(te), &size_out))
+	{
+		CloseHandle(h_token);
+		
+		return -1;
+	}
+	
+	CloseHandle(h_token);
+
+	return te.TokenIsElevated != 0;
 }

@@ -14,6 +14,8 @@
 //#define SR_REMOTE_DATA_PLACEHOLDER SR_REMOTE_DATA_PLACEHOLDER_86
 //#endif
 
+#define START_ROUTINE_DEFAULT_TIMEOUT 2000
+
 using f_Routine = DWORD(__stdcall*)(void* arg_routine);
 
 enum class SR_WORK_STATUS : DWORD

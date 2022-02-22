@@ -13,6 +13,8 @@ DWORD StartRoutine(LAUNCH_METHOD method, HANDLE h_proc, f_Routine routine, DWORD
 		return _NtCreateThreadEx(h_proc, routine, flags, arg_routine, out, timeout);
 
 	//case LAUNCH_METHOD::LM_QUEUE_USER_APC:
-
+	
+	default:
+		return 0;
 	};
 }

@@ -42,6 +42,7 @@ namespace NATIVE
 	NT_FUNC(NtClose);
 	NT_FUNC(NtSetInformationFile);
 	NT_FUNC(NtQueryInformationFile);
+	NT_FUNC(NtQuerySystemInformation);
 	NT_FUNC(NtReadFile);
 	NT_FUNC(LdrLockLoaderLock);
 	NT_FUNC(LdrUnlockLoaderLock);

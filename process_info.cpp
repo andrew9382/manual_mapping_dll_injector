@@ -92,52 +92,6 @@ ProcessInfo::~ProcessInfo()
 	ClearModulesVec();
 }
 
-//bool ProcessInfo::SetProcessByName(const wchar_t* proc_name, DWORD desired_access)
-//{
-//	if (!proc_name)
-//		return false;
-//
-//	if (!first_process)
-//	{
-//		if (!RefreshInformation())
-//			return false;
-//	}
-//
-//	while (NEXT_SYSTEM_PROCESS_ENTRY(current_process) != current_process)
-//	{
-//		if (!_wcsicmp(current_process->ImageName.szBuffer, proc_name))
-//			break;
-//
-//		current_process = NEXT_SYSTEM_PROCESS_ENTRY(current_process);
-//	}
-//
-//	if (_wcsicmp(current_process->ImageName.szBuffer, proc_name))
-//	{
-//		h_current_process    = NULL;
-//		current_process      = first_process;
-//		current_thread_index = NULL;
-//		current_thread       = &current_process->Threads[NULL];
-//
-//		return false;
-//	}
-//
-//	h_current_process = OpenProcess(desired_access, NULL, (DWORD)current_process->UniqueProcessId);
-//	if (!h_current_process)
-//	{
-//		h_current_process    = NULL;
-//		current_process      = first_process;
-//		current_thread_index = NULL;
-//		current_thread       = &current_process->Threads[NULL];
-//
-//		return false;
-//	}
-//	
-//	current_thread_index = NULL;
-//	current_thread = &current_process->Threads[NULL];
-//
-//	return true;
-//}
-
 bool ProcessInfo::SetProcess(HANDLE h_target_proc)
 {
 	DWORD handle_info = NULL;
@@ -231,10 +185,7 @@ bool ProcessInfo::NextThread()
 
 bool ProcessInfo::RefreshInformation()
 {
-	if (!process_modules.empty())
-	{
-		process_modules.clear();
-	}
+	ClearModulesVec();
 
 	if (first_process)
 	{

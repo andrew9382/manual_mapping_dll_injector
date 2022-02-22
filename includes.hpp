@@ -21,17 +21,19 @@
 #include "globals.hpp"
 #include "tools.hpp"
 #include "process_info.hpp"
+#include "start_routine.hpp"
+#include "hijack_handle.hpp"
 #include "injection.hpp"
 #include "hook_scanner.hpp"
 #include "import_handler.hpp"
 #include "some_defines.hpp"
 #include "manual_map.hpp"
 #include "symbol_loader.hpp"
-#include "start_routine.hpp"
 #include "symbol_parser.hpp"
+#include "externs.hpp"
 
 #pragma warning(disable: 4201) // unnamed union (nt structures)
 #pragma warning(disable: 4324) // structure member alignment resulting in additional bytes being added as padding
 #pragma warning(disable: 6001) // uninitialized memory & handles (false positive in for loops with continue statements)
 #pragma warning(disable: 6258) // TerminateThread warning
-#pragma warning(disable: 4996) // codecvt deprication
+#pragma warning(disable: 4996) // some deprications

@@ -433,6 +433,8 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 		return 0;
 	}
 
+	mp_data->out_module_base = (HMODULE)image_base;
+
 	return 1;
 }
 
@@ -466,7 +468,7 @@ MANUAL_MAP_FUNCTION_TABLE::MANUAL_MAP_FUNCTION_TABLE()
 
 MANUAL_MAPPING_SHELL_DATA::MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data)
 {
-	flags   = data->flags;
+	flags = data->flags;
 
 	wcscat(dll_path, L"\\??\\");
 	wcscat(dll_path, data->dll_path);

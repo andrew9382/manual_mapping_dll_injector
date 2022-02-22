@@ -40,6 +40,7 @@ struct MANUAL_MAP_FUNCTION_TABLE
 
 struct MANUAL_MAPPING_SHELL_DATA
 {
+	HMODULE			out_module_base		= 0;
 	wchar_t         dll_path[MAX_PATH]  = { 0 };
 	DWORD			flags				= 0;
 

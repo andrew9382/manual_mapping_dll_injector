@@ -114,6 +114,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -163,6 +164,7 @@
     <ClCompile Include="import_handler.cpp" />
     <ClCompile Include="injection.cpp" />
     <ClCompile Include="dll_main.cpp" />
+    <ClCompile Include="inject_internal.cpp" />
     <ClCompile Include="manual_map.cpp" />
     <ClCompile Include="nt_create_thread_ex.cpp" />
     <ClCompile Include="process_info.cpp" />
@@ -179,6 +181,7 @@
     <ClInclude Include="import_handler.hpp" />
     <ClInclude Include="includes.hpp" />
     <ClInclude Include="injection.hpp" />
+    <ClInclude Include="inject_internal.hpp" />
     <ClInclude Include="manual_map.hpp" />
     <ClInclude Include="NT Defs.h" />
     <ClInclude Include="NT Funcs.h" />

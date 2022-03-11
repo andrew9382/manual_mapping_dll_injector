@@ -64,7 +64,7 @@ DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg
 
 	SR_REMOTE_DATA data;
 	
-	ZeroMem(&data);
+	_ZeroMemory(&data, sizeof(data));
 	
 	data.routine = routine;
 	data.arg_routine = arg_routine;
@@ -114,6 +114,7 @@ DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg
 		if (!GetThreadContext(h_thread, &ctx))
 		{
 			failed = true;
+
 			goto FAIL;
 		}
 
@@ -126,6 +127,7 @@ DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg
 		if (!SetThreadContext(h_thread, &ctx))
 		{
 			failed = true;
+
 			goto FAIL;
 		}
 
@@ -134,7 +136,8 @@ DWORD _NtCreateThreadEx(HANDLE h_proc, f_Routine routine, DWORD flags, void* arg
 			failed = true;
 		}
 
-		FAIL:
+	FAIL:
+
 		if (failed)
 		{
 			TerminateThread(h_thread, 0);

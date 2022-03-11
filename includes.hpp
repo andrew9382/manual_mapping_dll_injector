@@ -31,6 +31,7 @@
 #include "symbol_loader.hpp"
 #include "symbol_parser.hpp"
 #include "externs.hpp"
+#include "inject_internal.hpp"
 
 #pragma warning(disable: 4201) // unnamed union (nt structures)
 #pragma warning(disable: 4324) // structure member alignment resulting in additional bytes being added as padding

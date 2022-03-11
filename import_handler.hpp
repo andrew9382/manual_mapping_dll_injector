@@ -36,6 +36,7 @@ namespace NATIVE
 	NT_FUNC(LdrpHeap);
 	NT_FUNC(RtlAllocateHeap);
 	NT_FUNC(NtAllocateVirtualMemory);
+	NT_FUNC(NtProtectVirtualMemory);
 	NT_FUNC(NtFreeVirtualMemory);
 	NT_FUNC(memmove);
 	NT_FUNC(NtOpenFile);
@@ -47,9 +48,15 @@ namespace NATIVE
 	NT_FUNC(LdrLockLoaderLock);
 	NT_FUNC(LdrUnlockLoaderLock);
 	NT_FUNC(NtCreateThreadEx);
+	NT_FUNC(RtlRbRemoveNode);
+	NT_FUNC(LdrpModuleBaseAddressIndex);
+	NT_FUNC(LdrpMappingInfoIndex);
+	NT_FUNC(memset);
 
 	WIN32_FUNC(LoadLibraryA);
 	WIN32_FUNC(FreeLibrary);
+	WIN32_FUNC(LoadLibraryExW);
+	WIN32_FUNC(GetLastError);
 }
 
 bool ResolveImports(class SymbolLoader* loader);

@@ -132,8 +132,11 @@ bool ResolveImports(SymbolLoader* loader)
 	}
 
 	INIT_WIN32_FUNC(LoadLibraryA, g_h_KERNEL32);
+	INIT_WIN32_FUNC(LoadLibraryExW, g_h_KERNEL32);
+	INIT_WIN32_FUNC(GetLastError, g_h_KERNEL32);
+	INIT_WIN32_FUNC(FreeLibrary, g_h_KERNEL32);
 
-	if (!NATIVE::p_LoadLibraryA)
+	if (!NATIVE::p_LoadLibraryA || !NATIVE::p_FreeLibrary || !NATIVE::p_GetLastError || !NATIVE::p_LoadLibraryExW)
 	{
 		return false;
 	}
@@ -146,13 +149,19 @@ bool ResolveImports(SymbolLoader* loader)
 	if (!GetSymAddressNative(_FUNC_(LdrLoadDll)))					return false;
 	if (!GetSymAddressNative(_FUNC_(LdrUnloadDll)))					return false;
 
-	if (!GetSymAddressNative(_FUNC_(RtlFreeHeap)))					return false;
 	if (!GetSymAddressNative(_FUNC_(LdrpHeap)))						return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpMappingInfoIndex)))			return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpModuleBaseAddressIndex)))	return false;
+
+	if (!GetSymAddressNative(_FUNC_(RtlFreeHeap)))					return false;
+
 	if (!GetSymAddressNative(_FUNC_(RtlAllocateHeap)))				return false;
 	if (!GetSymAddressNative(_FUNC_(NtAllocateVirtualMemory)))		return false;
 	if (!GetSymAddressNative(_FUNC_(NtFreeVirtualMemory)))			return false;
+	if (!GetSymAddressNative(_FUNC_(NtProtectVirtualMemory)))		return false;
 
 	if (!GetSymAddressNative(_FUNC_(memmove)))						return false;
+	if (!GetSymAddressNative(_FUNC_(memset)))						return false;
 
 	if (!GetSymAddressNative(_FUNC_(NtOpenFile)))					return false;
 	if (!GetSymAddressNative(_FUNC_(NtClose)))						return false;
@@ -164,6 +173,8 @@ bool ResolveImports(SymbolLoader* loader)
 	if (!GetSymAddressNative(_FUNC_(LdrUnlockLoaderLock)))			return false;
 
 	if (!GetSymAddressNative(_FUNC_(NtCreateThreadEx)))				return false;
+	
+	if (!GetSymAddressNative(_FUNC_(RtlRbRemoveNode)))				return false;
 	
 	return true;
 }

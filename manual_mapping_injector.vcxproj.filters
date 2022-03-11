@@ -62,6 +62,9 @@
     <ClCompile Include="hijack_handle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inject_internal.cpp">
+      <Filter>Source Files\Injection Methods</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="injection.hpp">
@@ -126,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="hijack_handle.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inject_internal.hpp">
+      <Filter>Header Files\Injection Methods</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

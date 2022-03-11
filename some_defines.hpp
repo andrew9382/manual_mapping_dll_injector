@@ -16,7 +16,7 @@
 
 #define SUSP_ERR(dword) ((DWORD)dword == -1)
 
-#define ZeroMem(ptr) memset(ptr, 0, sizeof(*(ptr))) 
+#define _ZeroMemory(ptr, size) memset(ptr, 0, size)
 
 #define ALIGN_64 __declspec(align(8))
 #define ALIGN_86 __declspec(align(4))

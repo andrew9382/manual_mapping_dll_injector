@@ -466,6 +466,8 @@ using f_NtQueryObject = NTSTATUS (__stdcall *)
 	PULONG                   ReturnLength
 );
 
+using f_memset = decltype(memset)*;
+
 using f_LdrpModuleBaseAddressIndex	= RTL_RB_TREE *;
 using f_LdrpMappingInfoIndex		= RTL_RB_TREE *;
 using f_LdrpHeap					= PVOID *;

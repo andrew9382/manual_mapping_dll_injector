@@ -99,7 +99,7 @@ DWORD ThreadHijack(HANDLE h_proc, f_Routine routine, void* arg_routine, DWORD* o
 
 	SR_REMOTE_DATA data;
 
-	ZeroMem(&data);
+	_ZeroMemory(&data, sizeof(data));
 
 	data.routine			= routine;
 	data.arg_routine		= arg_routine;

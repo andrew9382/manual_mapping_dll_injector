@@ -47,13 +47,9 @@ struct INJECTION_DATA
 	DWORD					flags							= 0;
 	LAUNCH_METHOD			method							= LAUNCH_METHOD::LM_THREAD_HIJACK;
 
-	bool this_module_manual_mapped_flag = false;
-
 	struct START_ARGS
 	{
-		HINSTANCE	hinstance							= 0;
-		wchar_t		full_own_module_path[MAX_PATH]		= { 0 };
-		wchar_t		own_module_folder_path[MAX_PATH]	= { 0 };
+		HINSTANCE hinstance = 0;
 	} start_args;
 };
 

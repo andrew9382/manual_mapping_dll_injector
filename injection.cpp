@@ -139,74 +139,153 @@ DWORD Inject(INJECTION_DATA* data)
 	}
 #endif
 
+	DWORD result = 0;
+
 	std::vector<HOOK_SCAN_DATA> hk_vec;
+
+	if (!HookScanAndPatch(&hk_vec, h_proc))
+	{
+		return 0;
+	}
 
 	if (data->mode == INJECTION_MODE::IM_MANUAL_MAPPING)
 	{
-		if (!HookScanAndPatch(&hk_vec, h_proc))
-		{
-			return 0;
-		}
-
 		MANUAL_MAPPING_SHELL_DATA mm_data(data);
 
-		size_t mm_size = (DWORD)ManualMapShellEnd - (DWORD)ManualMapShell;
+		size_t mm_size = (size_t)ManualMapShellEnd - (size_t)ManualMapShell;
 
-		BYTE* mm_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(MANUAL_MAPPING_SHELL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+		BYTE* mm_data_base = nullptr;
+		BYTE* mm_shell_base = nullptr;
+
+		mm_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(MANUAL_MAPPING_SHELL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 		if (!mm_data_base)
 		{
-			return 0;
+			result = 0;
+		
+			goto MM_FAIL;
 		}
 
 		if (!WriteProcessMemory(h_proc, mm_data_base, &mm_data, sizeof(mm_data), NULL))
 		{
 			ERRLOG("Inject: WriteProcessMemory error: %d", GetLastError());
+			
+			result = 0;
 
-			VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
-
-			return 0;
+			goto MM_FAIL;
 		}
 
-		BYTE* mm_shell_base = (BYTE*)VirtualAllocEx(h_proc, NULL, mm_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		mm_shell_base = (BYTE*)VirtualAllocEx(h_proc, NULL, mm_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (!mm_shell_base)
 		{
-			VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
-
-			return 0;
+			result = 0;
+			
+			goto MM_FAIL;
 		}
 
 		if (!WriteProcessMemory(h_proc, mm_shell_base, ManualMapShell, mm_size, NULL))
 		{
-			VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
-			VirtualFreeEx(h_proc, mm_shell_base, NULL, MEM_RELEASE);
-
-			return 0;
+			result = 0;
+		
+			goto MM_FAIL;
 		}
 
-		DWORD result = StartRoutine(data->method, h_proc, (f_Routine)mm_shell_base, data->flags, mm_data_base, &data->out, START_ROUTINE_DEFAULT_TIMEOUT);
+		result = StartRoutine(data->method, h_proc, (f_Routine)mm_shell_base, data->flags, mm_data_base, &data->out, START_ROUTINE_DEFAULT_TIMEOUT);
 		
 		if (result)
 		{
-			ReadProcessMemory(h_proc, mm_data_base, &data->h_dll_out, sizeof(HMODULE), NULL);
+			if (!ReadProcessMemory(h_proc, mm_data_base, &data->h_dll_out, sizeof(HMODULE), NULL))
+			{
+				result = 0;
+
+				goto MM_FAIL;
+			}
 		}
 		else
 		{
 			data->h_dll_out = 0;
 		}
 
-		VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
-		VirtualFreeEx(h_proc, mm_shell_base, NULL, MEM_RELEASE);
+	MM_FAIL:
 
-		RestoreHookedFuncs(&hk_vec, h_proc, HOOK_RESTORE_MODE::HRM_RESTORE_HOOK);
+		if (mm_data_base)
+		{
+			VirtualFreeEx(h_proc, mm_data_base, NULL, MEM_RELEASE);
+		}
 
-		return result;
+		if (mm_shell_base)
+		{
+			VirtualFreeEx(h_proc, mm_shell_base, NULL, MEM_RELEASE);
+		}
 	}
 	else // LoadLibraryExW
 	{
+		INJECT_INTERNAL_DATA llib_data(data, GetOSVersion(), GetOSBuildVersion());
 
+		size_t llib_size = (size_t)InjectInternal_End - (size_t)InjectInternal;
+
+		BYTE* llib_data_base = nullptr;
+		BYTE* llib_shell_base = nullptr;
+
+		llib_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(INJECT_INTERNAL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+		if (!llib_data_base)
+		{
+			result = 0;
+	
+			goto LLIB_FAIL;
+		}
+
+		if (!WriteProcessMemory(h_proc, llib_data_base, &llib_data, sizeof(INJECT_INTERNAL_DATA), NULL))
+		{
+			result = 0;
+			
+			goto LLIB_FAIL;
+		}
+
+		llib_shell_base = (BYTE*)VirtualAllocEx(h_proc, NULL, llib_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if (!llib_shell_base)
+		{
+			result = 0;
+			
+			goto LLIB_FAIL;
+		}
+
+		if (!WriteProcessMemory(h_proc, llib_shell_base, InjectInternal, llib_size, NULL))
+		{
+			result = 0;
+
+			goto LLIB_FAIL;
+		}
+
+		result = StartRoutine(data->method, h_proc, (f_Routine)llib_shell_base, data->flags, llib_data_base, &data->out, START_ROUTINE_DEFAULT_TIMEOUT);
+
+		if (result)
+		{
+			if (!ReadProcessMemory(h_proc, llib_data_base, &data->h_dll_out, sizeof(HMODULE), NULL))
+			{
+				result = 0;
+			}
+		}
+		else
+		{
+			data->h_dll_out = 0;
+		}
+
+	LLIB_FAIL:
+
+		if (llib_data_base)
+		{
+			VirtualFreeEx(h_proc, llib_data_base, NULL, MEM_RELEASE);
+		}
+
+		if (llib_shell_base)
+		{
+			VirtualFreeEx(h_proc, llib_shell_base, NULL, MEM_RELEASE);
+		}
 	}
 
-	return 1;
+	RestoreHookedFuncs(&hk_vec, h_proc, HOOK_RESTORE_MODE::HRM_RESTORE_HOOK);
+
+	return result;
 }
 
 DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD target_pid)
@@ -265,17 +344,14 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 
 	this_module_inj_data.method			= LAUNCH_METHOD::LM_NT_CREATE_THREAD_EX;
 	this_module_inj_data.flags			= (INJ_CTX_ALL ^ INJ_CTX_FAKE_START_ADDRESS) | INJ_BY_PROCESS_ID;
-	this_module_inj_data.mode			= INJECTION_MODE::IM_MANUAL_MAPPING;
+	this_module_inj_data.mode			= INJECTION_MODE::IM_LOAD_LIBRARY_EX_W;
 
 	wcscpy(this_module_inj_data.dll_path, g_path_to_this_module);
 
 	new_data.flags									= data->flags;
 	new_data.method									= data->method;
-	new_data.this_module_manual_mapped_flag			= true;
 
 	wcscpy(new_data.dll_path, data->dll_path);
-	wcscpy(new_data.start_args.full_own_module_path, g_path_to_this_module);
-	wcscpy(new_data.start_args.own_module_folder_path, g_path_to_this_module_folder);
 
 	if (new_data.flags & INJ_BY_HANDLE_HIJACK_AND_ID)
 	{
@@ -296,7 +372,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		f_Routine		remote_start			= nullptr;
 		bool			execute_finished_flag	= false;
 
-		ZeroMem(&new_data.data_buf);
+		_ZeroMemory(new_data.data_buf, sizeof(new_data.data_buf));
 
 		HANDLE h_proc = OpenProcess(proc_access, NULL, h.owner_pid);
 		
@@ -363,14 +439,12 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 
 		if (!ReadProcessMemory(h_proc, (void*)(&g_executing_finished - (DWORD)g_h_current_module + (DWORD)this_module_inj_data.h_dll_out), &execute_finished_flag, sizeof(bool), NULL))
 		{
-			// TODO: eject manually mapped module from process and cleanup
-			
 			fail_flag = true;
 
 			goto END;
 		}
 		
-END:
+	END:
 
 		if (remote_data)
 		{

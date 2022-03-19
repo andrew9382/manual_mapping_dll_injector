@@ -11,6 +11,7 @@
 #include <codecvt>
 #include <map>
 #include <string>
+#include <filesystem>
 #include "NT Defs.h"
 #include "NT Funcs.h"
 #include "Win10.h"
@@ -32,6 +33,7 @@
 #include "symbol_parser.hpp"
 #include "externs.hpp"
 #include "inject_internal.hpp"
+#include "namespaces.hpp"
 
 #pragma warning(disable: 4201) // unnamed union (nt structures)
 #pragma warning(disable: 4324) // structure member alignment resulting in additional bytes being added as padding

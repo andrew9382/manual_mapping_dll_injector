@@ -14,7 +14,7 @@ DWORD Inject(INJECTION_DATA* data)
 		return 0;
 	}
 
-	if (!FileExists(dll_path))
+	if (!fs::exists(dll_path))
 	{
 		return 0;
 	}
@@ -138,6 +138,92 @@ DWORD Inject(INJECTION_DATA* data)
 		return 0;
 	}
 #endif
+
+	if (flags & INJ_LOAD_DLL_COPY)
+	{
+		wchar_t* temp_dir = new wchar_t[MAX_PATH];
+		
+		if (!temp_dir)
+		{
+			return 0;
+		}
+
+		if (!GetTempPathW(MAX_PATH, temp_dir))
+		{
+			delete[] temp_dir;
+			
+			return 0;
+		}
+
+		std::wstring new_path = temp_dir;
+
+		delete[] temp_dir;
+
+		new_path += fs::path(data->dll_path).filename();
+
+		try
+		{
+			if (!fs::copy_file(data->dll_path, new_path))
+			{
+				return 0;
+			}
+		}
+		catch (fs::filesystem_error& err)
+		{
+			if (err.code().value() != 80)
+			{
+				return 0;
+			}
+		}
+	
+		wcscpy(data->dll_path, new_path.c_str());
+	}
+	
+	if (flags & INJ_SCRAMBLE_DLL_NAME)
+	{
+		wchar_t* scrambled_name = new wchar_t[11];
+
+		if (!scrambled_name)
+		{
+			return 0;
+		}
+
+		srand(time(NULL));
+
+		for (DWORD i = 0; i < 10; ++i)
+		{
+			int rand_choose = _random(1, 3);
+
+			switch (rand_choose)
+			{
+			case 1:
+				scrambled_name[i] = wchar_t('a' + _random(0, 25));
+				break;
+
+			case 2:
+				scrambled_name[i] = wchar_t('A' + _random(0, 25));
+				break;
+
+			case 3:
+				scrambled_name[i] = wchar_t('0' + _random(0, 8));
+				break;
+			}
+		}
+
+		scrambled_name[10] = L'\0';
+
+		fs::path scrambled_path(data->dll_path);
+
+		scrambled_path.remove_filename();
+		scrambled_path += scrambled_name;
+		scrambled_path += L".dll";
+		
+		delete[] scrambled_name;
+
+		fs::rename(data->dll_path, scrambled_path);
+
+		wcscpy(data->dll_path, scrambled_path.c_str());
+	}
 
 	DWORD result = 0;
 
@@ -346,7 +432,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 	this_module_inj_data.flags			= (INJ_CTX_ALL ^ INJ_CTX_FAKE_START_ADDRESS) | INJ_BY_PROCESS_ID;
 	this_module_inj_data.mode			= INJECTION_MODE::IM_LOAD_LIBRARY_EX_W;
 
-	wcscpy(this_module_inj_data.dll_path, g_path_to_this_module);
+	wcscpy(this_module_inj_data.dll_path, g_path_to_this_module.c_str());
 
 	new_data.flags									= data->flags;
 	new_data.method									= data->method;
@@ -380,7 +466,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 
 		if (is_target_elevated)
@@ -390,7 +476,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 			{
 				fail_flag = true;
 
-				goto END;
+				goto HHIJACK_END;
 			}
 		}
 
@@ -400,14 +486,14 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 
 		if (!this_module_inj_data.h_dll_out)
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 		
 		remote_data = VirtualAllocEx(h_proc, NULL, sizeof(INJECTION_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -415,7 +501,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 
 		*(HANDLE*)new_data.data_buf = h.handle;
@@ -424,7 +510,7 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 
 		remote_start = (f_Routine)((DWORD)&Start - (DWORD)g_h_current_module + (DWORD)this_module_inj_data.h_dll_out);
@@ -434,17 +520,17 @@ DWORD HijackHandle(INJECTION_DATA* data, ACCESS_MASK desired_access, DWORD targe
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 
 		if (!ReadProcessMemory(h_proc, (void*)(&g_executing_finished - (DWORD)g_h_current_module + (DWORD)this_module_inj_data.h_dll_out), &execute_finished_flag, sizeof(bool), NULL))
 		{
 			fail_flag = true;
 
-			goto END;
+			goto HHIJACK_END;
 		}
 		
-	END:
+	HHIJACK_END:
 
 		if (remote_data)
 		{

@@ -67,7 +67,7 @@ DWORD CODE_SEG(".inj_int$1") __stdcall InjectInternal(INJECT_INTERNAL_DATA* data
 			nt_dll[8] = L'l';
 			nt_dll[9] = L'\0';
 
-			HMODULE h_nt = f->p_LoadLibraryExW(nt_dll, NULL, NULL); // problem
+			HMODULE h_nt = f->p_LoadLibraryExW(nt_dll, NULL, NULL);
 			
 			if (!h_nt)
 			{

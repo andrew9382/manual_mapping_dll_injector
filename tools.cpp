@@ -4,6 +4,7 @@ DWORD GetProcId(const wchar_t* proc_name)
 {
 	DWORD proc_id = NULL;
 	HANDLE h_snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
 	PROCESSENTRY32 p_entry = { 0 };
 	p_entry.dwSize = sizeof(p_entry);
 
@@ -12,6 +13,7 @@ DWORD GetProcId(const wchar_t* proc_name)
 		ERRLOG("CreateToolhelp32Snapshot: % d\n", GetLastError());
 		return NULL;
 	}
+
 	if (Process32First(h_snap, &p_entry))
 	{
 		do
@@ -21,6 +23,7 @@ DWORD GetProcId(const wchar_t* proc_name)
 				proc_id = p_entry.th32ProcessID;
 				break;
 			}
+
 		} while (Process32Next(h_snap, &p_entry));
 	}
 
@@ -28,37 +31,20 @@ DWORD GetProcId(const wchar_t* proc_name)
 	return proc_id;
 }
 
-DWORD GetOwnModuleFolderPathW(wchar_t* mod_name_buf, size_t buf_size)
+DWORD GetOwnModuleFullPathW(fs::path& mod_name_path)
 {
-	DWORD mod_name_len = GetModuleFileNameW(g_h_current_module, mod_name_buf, buf_size);
+	wchar_t mod_name_buf[MAX_PATH] = { 0 };
+
+	DWORD mod_name_len = GetModuleFileNameW(g_h_current_module, mod_name_buf, sizeof(mod_name_buf) / sizeof(mod_name_buf[0]));
 
 	if (!mod_name_len || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		return 0;
 	}
 
-	mod_name_buf += mod_name_len;
-	while (*(--mod_name_buf - 1) != '\\');
-	*mod_name_buf = '\0';
+	mod_name_path = mod_name_buf;
 
 	return mod_name_len;
-}
-
-DWORD GetOwnModuleFullPathW(wchar_t* mod_name_buf, size_t buf_size)
-{
-	DWORD mod_name_len = GetModuleFileNameW(g_h_current_module, mod_name_buf, buf_size);
-
-	if (!mod_name_len || GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-	{
-		return 0;
-	}
-
-	return mod_name_len;
-}
-
-bool FileExists(const wchar_t* file_path)
-{
-	return (GetFileAttributesW(file_path) != INVALID_FILE_ATTRIBUTES);
 }
 
 bool VerifyDLL(const wchar_t* file_path, WORD desired_machine)
@@ -161,4 +147,9 @@ DWORD IsElevatedProcess(HANDLE h_proc)
 	CloseHandle(h_token);
 
 	return te.TokenIsElevated != 0;
+}
+
+int _random(int begin, int end)
+{
+	return begin + rand() % (end - begin + 1);
 }

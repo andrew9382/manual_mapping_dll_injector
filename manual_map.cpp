@@ -91,6 +91,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 	{
 		return 0;
 	}
+
 	MANUAL_MAP_FUNCTION_TABLE* f = &mp_data->f_table;
 
 	IMAGE_DOS_HEADER*		dos_header	 = nullptr;

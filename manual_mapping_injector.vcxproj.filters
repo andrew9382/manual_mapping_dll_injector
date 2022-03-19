@@ -133,5 +133,8 @@
     <ClInclude Include="inject_internal.hpp">
       <Filter>Header Files\Injection Methods</Filter>
     </ClInclude>
+    <ClInclude Include="namespaces.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

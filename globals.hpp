@@ -1,5 +1,7 @@
 #pragma once
 
+#include "namespaces.hpp"
+
 inline HINSTANCE g_h_NTDLL;
 inline HINSTANCE g_h_KERNEL32;
 inline HINSTANCE g_h_current_module;
@@ -9,8 +11,7 @@ inline DWORD g_os_build_number;
 
 inline bool g_executing_finished;
 
-inline wchar_t g_path_to_this_module[MAX_PATH];
-inline wchar_t g_path_to_this_module_folder[MAX_PATH];
+inline fs::path g_path_to_this_module;
 
 #define g_Win8	62
 #define g_Win7	61

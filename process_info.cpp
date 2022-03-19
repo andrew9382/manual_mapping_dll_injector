@@ -347,7 +347,7 @@ bool ProcessInfo::ReadAllModules()
 		{
 			return false;
 		}
-
+		
 		DWORD size = current_entry_data.BaseDllName.Length / sizeof(wchar_t) + 1;
 		std::shared_ptr<wchar_t[]> tmp_name_buf(new wchar_t[size]);
 

@@ -9,16 +9,7 @@ DLLEXPORT int WINAPI Start(INJECTION_DATA* data)
 
 	g_h_current_module = data->start_args.hinstance;
 
-	if (!GetOwnModuleFolderPathW(g_path_to_this_module_folder, sizeof(g_path_to_this_module_folder)))
-	{
-		ERRLOG("Cannot get own module folder path");
-
-		fail_flag = true;
-
-		goto FINISH;
-	}
-
-	if (!GetOwnModuleFullPathW(g_path_to_this_module, sizeof(g_path_to_this_module)))
+	if (!GetOwnModuleFullPathW(g_path_to_this_module))
 	{
 		ERRLOG("Cannot get own module full path");
 
@@ -44,7 +35,7 @@ DLLEXPORT int WINAPI Start(INJECTION_DATA* data)
 
 	free(windows_dir);
 
-	if (!loader.Initialize(ntdll_path.c_str(), g_path_to_this_module_folder, false, SL_DEFAULT_TIMEOUT))
+	if (!loader.Initialize(ntdll_path.c_str(), g_path_to_this_module.parent_path().c_str(), false, SL_DEFAULT_TIMEOUT))
 	{
 		ERRLOG("Cannot initialize ntdll.pdb file");
 		

@@ -183,6 +183,7 @@
     <ClInclude Include="injection.hpp" />
     <ClInclude Include="inject_internal.hpp" />
     <ClInclude Include="manual_map.hpp" />
+    <ClInclude Include="namespaces.hpp" />
     <ClInclude Include="NT Defs.h" />
     <ClInclude Include="NT Funcs.h" />
     <ClInclude Include="process_info.hpp" />

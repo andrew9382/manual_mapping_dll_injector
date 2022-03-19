@@ -27,9 +27,15 @@ static const char* to_hk_scan[] =
 	"NtReadFile",
 	"LdrLockLoaderLock",
 	"LdrUnlockLoaderLock",
+	"memset",
+	"RtlRbRemoveNode",
+	"NtCreateThreadEx",
+	"NtQuerySystemInformation",
 
+	"LoadLibraryExW",
 	"LoadLibraryA",
-	"FreeLibrary"
+	"FreeLibrary",
+	"GetLastError",
 };
 
 enum class HOOK_RESTORE_MODE

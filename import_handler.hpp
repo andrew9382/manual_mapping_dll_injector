@@ -52,6 +52,11 @@ namespace NATIVE
 	NT_FUNC(LdrpModuleBaseAddressIndex);
 	NT_FUNC(LdrpMappingInfoIndex);
 	NT_FUNC(memset);
+	NT_FUNC(LdrProtectMrdata);
+	NT_FUNC(RtlAddVectoredExceptionHandler);
+	NT_FUNC(LdrpInvertedFunctionTable);
+	NT_FUNC(RtlInsertInvertedFunctionTable);
+	NT_FUNC(RtlRemoveVectoredExceptionHandler);
 
 	WIN32_FUNC(LoadLibraryA);
 	WIN32_FUNC(FreeLibrary);

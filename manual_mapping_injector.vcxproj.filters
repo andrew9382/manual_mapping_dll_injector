@@ -65,6 +65,9 @@
     <ClCompile Include="inject_internal.cpp">
       <Filter>Source Files\Injection Methods</Filter>
     </ClCompile>
+    <ClCompile Include="veh_shell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="injection.hpp">
@@ -100,9 +103,6 @@
     <ClInclude Include="import_handler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="some_defines.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="start_routine.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -134,6 +134,9 @@
       <Filter>Header Files\Injection Methods</Filter>
     </ClInclude>
     <ClInclude Include="namespaces.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="veh_shell.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

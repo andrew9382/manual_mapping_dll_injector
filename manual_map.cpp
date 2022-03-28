@@ -29,7 +29,7 @@ __forceinline int _strlen(const char* str)
 }
 
 template <typename T>
-__forceinline T* _HeapAlloc(MANUAL_MAP_FUNCTION_TABLE* f, size_t size)
+__forceinline T* _HeapAlloc(MANUAL_MAP_FUNCTION_TABLE* f, size_t size = 1)
 {
 	return (T*)f->RtlAllocateHeap(f->p_LdrpHeap, HEAP_ZERO_MEMORY, size * sizeof(T));
 }
@@ -92,6 +92,8 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 		return 0;
 	}
 
+	DWORD flags = mp_data->flags;
+
 	MANUAL_MAP_FUNCTION_TABLE* f = &mp_data->f_table;
 
 	IMAGE_DOS_HEADER*		dos_header	 = nullptr;
@@ -115,7 +117,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 
 	MM_DEPENDENCY_RECORD* imports = nullptr;
 
-	UNICODE_STRING* u_str = _HeapAlloc<UNICODE_STRING>(f, 1);
+	UNICODE_STRING* u_str = _HeapAlloc<UNICODE_STRING>(f);
 	
 	if (!u_str)
 	{
@@ -126,7 +128,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 	u_str->MaxLength = sizeof(wchar_t[MAX_PATH + 4]);
 	u_str->szBuffer = mp_data->dll_path;
 
-	OBJECT_ATTRIBUTES* obj_attr = _HeapAlloc<OBJECT_ATTRIBUTES>(f, 1);
+	OBJECT_ATTRIBUTES* obj_attr = _HeapAlloc<OBJECT_ATTRIBUTES>(f);
 	
 	if (!obj_attr)
 	{
@@ -139,7 +141,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 	obj_attr->ObjectName = u_str;
 	obj_attr->Attributes = OBJ_CASE_INSENSITIVE;
 
-	IO_STATUS_BLOCK* io_status = _HeapAlloc<IO_STATUS_BLOCK>(f, 1);
+	IO_STATUS_BLOCK* io_status = _HeapAlloc<IO_STATUS_BLOCK>(f);
 
 	if (!io_status)
 	{
@@ -161,7 +163,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 	_FreeHeap(f, u_str);
 	_FreeHeap(f, obj_attr);
 
-	FILE_STANDARD_INFO* fsi = _HeapAlloc<FILE_STANDARD_INFO>(f, 1);
+	FILE_STANDARD_INFO* fsi = _HeapAlloc<FILE_STANDARD_INFO>(f);
 	if (!fsi)
 	{
 		f->NtClose(h_file);
@@ -185,7 +187,7 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 
 	_FreeHeap(f, fsi);
 
-	FILE_POSITION_INFORMATION* f_pos = _HeapAlloc<FILE_POSITION_INFORMATION>(f, 1);
+	FILE_POSITION_INFORMATION* f_pos = _HeapAlloc<FILE_POSITION_INFORMATION>(f);
 	if (!f_pos)
 	{
 		f->NtClose(h_file);
@@ -276,162 +278,298 @@ DWORD CODE_SEG(".mmap_seg$1") __stdcall ManualMapShell(MANUAL_MAPPING_SHELL_DATA
 
 	DllMain = (f_DLL_ENTRY_POINT)(image_base + opt_header->AddressOfEntryPoint);
 
-	DWORD location_delta = (DWORD)image_base - opt_header->ImageBase;
-	if (location_delta)
+	if (flags & INJ_MM_RESOLVE_RELOCATIONS)
 	{
-		if (!opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size)
+		DWORD location_delta = (DWORD)image_base - opt_header->ImageBase;
+		if (location_delta)
 		{
-			image_size = 0;
-			f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
-			
-			return 0;
-		}
-
-		IMAGE_BASE_RELOCATION* reloc_data = (IMAGE_BASE_RELOCATION*)(image_base + opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress);
-		while (reloc_data->VirtualAddress)
-		{
-			DWORD amount_of_entries  = (reloc_data->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
-			WORD* relative_info		 = (WORD*)(reloc_data + 1);
-
-			for (DWORD i = 0; i < amount_of_entries; ++i, ++relative_info)
+			if (!opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size)
 			{
-				if (RELOC_FLAG(*relative_info))
-				{
-					DWORD* patch = (DWORD*)(image_base + reloc_data->VirtualAddress + (*relative_info & 0xFFF));
-					*patch += (DWORD)location_delta;
-				}
+				image_size = 0;
+				f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
+
+				return 0;
 			}
 
-			reloc_data = (IMAGE_BASE_RELOCATION*)((BYTE*)reloc_data + reloc_data->SizeOfBlock);
-		}
+			IMAGE_BASE_RELOCATION* reloc_data = (IMAGE_BASE_RELOCATION*)(image_base + opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress);
+			while (reloc_data->VirtualAddress)
+			{
+				DWORD amount_of_entries = (reloc_data->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
+				WORD* relative_info = (WORD*)(reloc_data + 1);
 
-		opt_header->ImageBase += location_delta;
+				for (DWORD i = 0; i < amount_of_entries; ++i, ++relative_info)
+				{
+					if (RELOC_FLAG(*relative_info))
+					{
+						DWORD* patch = (DWORD*)(image_base + reloc_data->VirtualAddress + (*relative_info & 0xFFF));
+						*patch += (DWORD)location_delta;
+					}
+				}
+
+				reloc_data = (IMAGE_BASE_RELOCATION*)((BYTE*)reloc_data + reloc_data->SizeOfBlock);
+			}
+
+			opt_header->ImageBase += location_delta;
+		}
 	}
 
-	if (opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size)
+	if (flags & (INJ_MM_RUN_DLL_MAIN_UNDER_LOADER_LOCK | INJ_MM_RUN_DLL_MAIN | INJ_MM_RESOLVE_IMPORTS))
 	{
-		IMAGE_IMPORT_DESCRIPTOR* import_descriptor = (IMAGE_IMPORT_DESCRIPTOR*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress + image_base);
-
-		bool err_break = false;
-
-		while (import_descriptor->Name)
+		if (opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size)
 		{
-			char* dll_name = (char*)(image_base + import_descriptor->Name);
-			HMODULE h_dll = f->p_LoadLibraryA(dll_name);
+			IMAGE_IMPORT_DESCRIPTOR* import_descriptor = (IMAGE_IMPORT_DESCRIPTOR*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress + image_base);
 
-			if (!h_dll)
+			bool err_break = false;
+
+			while (import_descriptor->Name)
 			{
-				err_break = true;
-				goto ERR_BREAK;
-			}
+				char* dll_name = (char*)(image_base + import_descriptor->Name);
+				HMODULE h_dll = f->p_LoadLibraryA(dll_name);
 
-			AddDependency(f, &imports, h_dll);
-
-			IMAGE_THUNK_DATA* thunk_ref  = (IMAGE_THUNK_DATA*)(image_base + import_descriptor->OriginalFirstThunk);
-			IMAGE_THUNK_DATA* func_ref   = (IMAGE_THUNK_DATA*)(image_base + import_descriptor->FirstThunk);
-
-			if (!thunk_ref)
-			{
-				thunk_ref = func_ref;
-			}
-
-			for (; thunk_ref->u1.AddressOfData; ++thunk_ref, ++func_ref)
-			{
-				if (IMAGE_SNAP_BY_ORDINAL(thunk_ref->u1.Ordinal))
+				if (!h_dll)
 				{
-					if (NT_FAIL(f->LdrGetProcedureAddress(h_dll, NULL, IMAGE_ORDINAL(thunk_ref->u1.Ordinal), (void**)&func_ref->u1.Function)))
+					err_break = true;
+					goto ERR_BREAK;
+				}
+
+				AddDependency(f, &imports, h_dll);
+
+				IMAGE_THUNK_DATA* thunk_ref = (IMAGE_THUNK_DATA*)(image_base + import_descriptor->OriginalFirstThunk);
+				IMAGE_THUNK_DATA* func_ref = (IMAGE_THUNK_DATA*)(image_base + import_descriptor->FirstThunk);
+
+				if (!thunk_ref)
+				{
+					thunk_ref = func_ref;
+				}
+
+				for (; thunk_ref->u1.AddressOfData; ++thunk_ref, ++func_ref)
+				{
+					if (IMAGE_SNAP_BY_ORDINAL(thunk_ref->u1.Ordinal))
 					{
-						err_break = true;
-						goto ERR_BREAK;
+						if (NT_FAIL(f->LdrGetProcedureAddress(h_dll, NULL, IMAGE_ORDINAL(thunk_ref->u1.Ordinal), (void**)&func_ref->u1.Function)))
+						{
+							err_break = true;
+							goto ERR_BREAK;
+						}
+					}
+					else
+					{
+						IMAGE_IMPORT_BY_NAME* _import = (IMAGE_IMPORT_BY_NAME*)(thunk_ref->u1.AddressOfData + image_base);
+
+						ANSI_STRING* ansi_str = _HeapAlloc<ANSI_STRING>(f);
+
+						if (!ansi_str)
+						{
+							err_break = true;
+							goto ERR_BREAK;
+						}
+
+						ansi_str->Length = _strlen(_import->Name);
+
+						if (ansi_str->Length == -1)
+						{
+							_FreeHeap(f, ansi_str);
+
+							err_break = true;
+							goto ERR_BREAK;
+						}
+
+						ansi_str->szBuffer = _import->Name;
+						ansi_str->MaxLength = ansi_str->Length + 1 * sizeof(char);
+
+						if (NT_FAIL(f->LdrGetProcedureAddress(h_dll, ansi_str, NULL, (void**)&func_ref->u1.Function)))
+						{
+							_FreeHeap(f, ansi_str);
+
+							err_break = true;
+							goto ERR_BREAK;
+						}
+
+						_FreeHeap(f, ansi_str);
 					}
 				}
-				else
-				{
-					IMAGE_IMPORT_BY_NAME* _import = (IMAGE_IMPORT_BY_NAME*)(thunk_ref->u1.AddressOfData + image_base);
-
-					ANSI_STRING* ansi_str = _HeapAlloc<ANSI_STRING>(f, 1);
-
-					if (!ansi_str)
-					{
-						err_break = true;
-						goto ERR_BREAK;
-					}
-
-					ansi_str->Length = _strlen(_import->Name);
-
-					if (ansi_str->Length == -1)
-					{
-						_FreeHeap(f, ansi_str);
-					
-						err_break = true;
-						goto ERR_BREAK;
-					}
-
-					ansi_str->szBuffer   = _import->Name;
-					ansi_str->MaxLength  = ansi_str->Length + 1 * sizeof(char);
-					
-					if (NT_FAIL(f->LdrGetProcedureAddress(h_dll, ansi_str, NULL, (void**)&func_ref->u1.Function)))
-					{
-						_FreeHeap(f, ansi_str);
-
-						err_break = true;
-						goto ERR_BREAK;
-					}
-
-					_FreeHeap(f, ansi_str);
-				}
+				++import_descriptor;
 			}
-			++import_descriptor;
-		}
 
 		ERR_BREAK:
-		if (err_break)
+			if (err_break)
+			{
+				DeleteAllDependencies(f, imports);
+
+				image_size = 0;
+				f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
+
+				return 0;
+			}
+		}
+	}
+
+	if (flags & INJ_MM_EXECUTE_TLS_CALLBACKS)
+	{
+		if (opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
+		{
+			IMAGE_TLS_DIRECTORY* TLS_dir = (IMAGE_TLS_DIRECTORY*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress + image_base);
+			PIMAGE_TLS_CALLBACK* TLS_callback = (PIMAGE_TLS_CALLBACK*)(TLS_dir->AddressOfCallBacks + image_base);
+
+			for (; TLS_callback && *TLS_callback; ++TLS_callback)
+			{
+				(*TLS_callback)(image_base, DLL_PROCESS_ATTACH, NULL);
+			}
+		}
+	}
+
+	if (flags & INJ_MM_ENABLE_EXCEPTIONS)
+	{
+		VEH_SHELL_DATA* veh_shell_data = _HeapAlloc<VEH_SHELL_DATA>(f);
+
+		if (!veh_shell_data)
 		{
 			DeleteAllDependencies(f, imports);
+			 
+			f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
+
+			return 0;
+		}
+
+		veh_shell_data->image_base					= image_base;
+		veh_shell_data->image_size					= image_size;
+		veh_shell_data->os_version					= mp_data->os_version;
+		veh_shell_data->_LdrpInvertedFunctionTable	= f->LdrpInvertedFunctionTable;
+		veh_shell_data->_LdrProtectMrdata			= f->LdrProtectMrdata;
+
+		if (!FindAndReplacePointers((BYTE*)mp_data->veh_shell, mp_data->veh_shell_size, VEH_DATA_SIG, (UINT_PTR)veh_shell_data))
+		{
+			DeleteAllDependencies(f, imports);
+
+			f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
+
+			return 0;
+		}
 		
-			image_size = 0;
+		if (mp_data->os_version >= g_Win8)
+		{
+			f->RtlInsertInvertedFunctionTable(image_base, image_size);
+		}
+		else
+		{
+			auto RtlInsertInvertedFunctionTable_WIN7 = (f_RtlInsertInvertedFunctionTable_WIN7)f->RtlInsertInvertedFunctionTable;
+			RtlInsertInvertedFunctionTable_WIN7((RTL_INVERTED_FUNCTION_TABLE_WIN7*)f->LdrpInvertedFunctionTable, image_base, image_size);
+		}
+
+		NTSTATUS nt_ret = STATUS_SUCCESS;
+		
+		RTL_INVERTED_FUNCTION_TABLE_ENTRY* entry = nullptr;
+
+		if (mp_data->os_version == g_Win7)
+		{
+			entry = &((RTL_INVERTED_FUNCTION_TABLE_WIN7*)f->LdrpInvertedFunctionTable)->Entries[0];
+
+		}
+		else
+		{
+			entry = &f->LdrpInvertedFunctionTable->Entries[0];
+		}
+
+		for (DWORD i = 0; i < f->LdrpInvertedFunctionTable->Count; ++i)
+		{
+			if (entry[i].ImageBase != image_base)
+			{
+				continue;
+			}
+
+			if (entry[i].ExceptionDirectorySize)
+			{
+				break;
+			}
+
+			void* fake_dir = nullptr;
+			DWORD dir_size = 0x800 * sizeof(void*);
+
+			nt_ret = f->NtAllocateVirtualMemory(h_proc, (void**)&fake_dir, NULL, &dir_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+
+			if (NT_FAIL(nt_ret) || !fake_dir)
+			{
+				break;
+			}
+
+			DWORD p_encoded = EncodeSystemPtr((DWORD)fake_dir);
+
+			if (mp_data->os_version >= g_Win81)
+			{
+				f->LdrProtectMrdata(FALSE);
+			}
+
+			entry[i].ExceptionDirectory = (IMAGE_RUNTIME_FUNCTION_ENTRY*)p_encoded;
+			
+			if (mp_data->os_version >= g_Win81)
+			{
+				f->LdrProtectMrdata(TRUE);
+			}
+
+			if (!mp_data->h_veh)
+			{
+				mp_data->h_veh = f->RtlAddVectoredExceptionHandler(NULL, (PVECTORED_EXCEPTION_HANDLER)mp_data->veh_shell);
+			}
+
+			break;
+		}
+
+		if (NT_FAIL(nt_ret))
+		{
+			if (mp_data->h_veh)
+			{
+				f->RtlRemoveVectoredExceptionHandler(mp_data->h_veh);
+			}
+
+			DeleteAllDependencies(f, imports);
+
 			f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
 
 			return 0;
 		}
 	}
 
-	if (opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size)
+	if (flags & (INJ_MM_RUN_DLL_MAIN | INJ_MM_RUN_DLL_MAIN_UNDER_LOADER_LOCK))
 	{
-		IMAGE_TLS_DIRECTORY* TLS_dir	   = (IMAGE_TLS_DIRECTORY*)(opt_header->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress + image_base);
-		PIMAGE_TLS_CALLBACK* TLS_callback  = (PIMAGE_TLS_CALLBACK*)(TLS_dir->AddressOfCallBacks + image_base);
+		bool failed = false;
 
-		for (; TLS_callback && *TLS_callback; ++TLS_callback)
+		if (flags & INJ_MM_RUN_DLL_MAIN_UNDER_LOADER_LOCK)
 		{
-			(*TLS_callback)(image_base, DLL_PROCESS_ATTACH, NULL);
+			ULONG		state	= 0;
+			ULONG_PTR	cookie	= 0;
+			bool		locked	= false;
+			
+			locked = f->LdrLockLoaderLock(NULL, &state, &cookie) == 0;
+
+			if (!DllMain((HINSTANCE)image_base, DLL_PROCESS_ATTACH, NULL))
+			{
+				failed = true;
+			}
+
+			if (locked)
+			{
+				f->LdrUnlockLoaderLock(NULL, cookie);
+			}
 		}
-	}
+		else
+		{
+			if (!DllMain((HINSTANCE)image_base, DLL_PROCESS_ATTACH, NULL))
+			{
+				failed = true;
+			}
+		}
 
-	ULONG		state   = 0;
-	ULONG_PTR	cookie  = 0;
-	bool		locked  = false;
-	bool		failed  = false;
+		if (failed)
+		{
+			f->RtlRemoveVectoredExceptionHandler(mp_data->h_veh);
 
-	locked = f->LdrLockLoaderLock(NULL, &state, &cookie) == 0;
+			DeleteAllDependencies(f, imports);
 
-	if (!DllMain((HINSTANCE)image_base, DLL_PROCESS_ATTACH, NULL))
-	{
-		failed = true;
-	}
+			image_size = 0;
+			f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
 
-	if (locked)
-	{
-		f->LdrUnlockLoaderLock(NULL, cookie);
-	}
-
-	if (failed)
-	{
-		DeleteAllDependencies(f, imports);
-
-		image_size = 0;
-		f->NtFreeVirtualMemory(h_proc, (void**)&image_base, &image_size, MEM_RELEASE);
-
-		return 0;
+			return 0;
+		}
 	}
 
 	mp_data->out_module_base = (HMODULE)image_base;
@@ -462,14 +600,22 @@ MANUAL_MAP_FUNCTION_TABLE::MANUAL_MAP_FUNCTION_TABLE()
 	INIT_CONSTRUCTOR_NATIVE(NtReadFile);
 	INIT_CONSTRUCTOR_NATIVE(LdrLockLoaderLock);
 	INIT_CONSTRUCTOR_NATIVE(LdrUnlockLoaderLock);
+	INIT_CONSTRUCTOR_NATIVE(LdrProtectMrdata);
+	INIT_CONSTRUCTOR_NATIVE(RtlAddVectoredExceptionHandler);
+	INIT_CONSTRUCTOR_NATIVE(LdrpInvertedFunctionTable);
+	INIT_CONSTRUCTOR_NATIVE(RtlInsertInvertedFunctionTable);
+	INIT_CONSTRUCTOR_NATIVE(RtlRemoveVectoredExceptionHandler);
 
 	INIT_CONSTRUCTOR_NATIVE_WIN32(LoadLibraryA);
 	INIT_CONSTRUCTOR_NATIVE_WIN32(FreeLibrary);
 }
 
-MANUAL_MAPPING_SHELL_DATA::MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data)
+MANUAL_MAPPING_SHELL_DATA::MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data, DWORD os_version, void* veh_shell_base, DWORD veh_shell_size)
 {
 	flags = data->flags;
+	this->os_version = os_version;
+	this->veh_shell_size = veh_shell_size;
+	veh_shell = veh_shell_base;
 
 	wcscat(dll_path, L"\\??\\");
 	wcscat(dll_path, data->dll_path);

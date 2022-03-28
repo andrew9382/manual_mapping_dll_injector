@@ -27,13 +27,13 @@
 #include "injection.hpp"
 #include "hook_scanner.hpp"
 #include "import_handler.hpp"
-#include "some_defines.hpp"
 #include "manual_map.hpp"
 #include "symbol_loader.hpp"
 #include "symbol_parser.hpp"
 #include "externs.hpp"
 #include "inject_internal.hpp"
 #include "namespaces.hpp"
+#include "veh_shell.hpp"
 
 #pragma warning(disable: 4201) // unnamed union (nt structures)
 #pragma warning(disable: 4324) // structure member alignment resulting in additional bytes being added as padding

@@ -236,12 +236,37 @@ DWORD Inject(INJECTION_DATA* data)
 
 	if (data->mode == INJECTION_MODE::IM_MANUAL_MAPPING)
 	{
-		MANUAL_MAPPING_SHELL_DATA mm_data(data);
+		BYTE* mm_data_base		= nullptr;
+		BYTE* mm_shell_base		= nullptr;
+		BYTE* veh_shell_base	= nullptr;
+		
+		MANUAL_MAPPING_SHELL_DATA* mm_data = nullptr;
 
-		size_t mm_size = (size_t)ManualMapShellEnd - (size_t)ManualMapShell;
+		size_t mm_size			= (size_t)ManualMapShellEnd - (size_t)ManualMapShell;
+		size_t veh_shell_size	= (size_t)VEHShell_End - (size_t)VEHShell;
+		
+		veh_shell_base = (BYTE*)VirtualAllocEx(h_proc, NULL, veh_shell_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if (!veh_shell_base)
+		{
+			result = 0;
 
-		BYTE* mm_data_base = nullptr;
-		BYTE* mm_shell_base = nullptr;
+			goto MM_FAIL;
+		}
+
+		if (!WriteProcessMemory(h_proc, veh_shell_base, VEHShell, veh_shell_size, NULL))
+		{
+			result = 0;
+
+			goto MM_FAIL;
+		}
+
+		mm_data = new MANUAL_MAPPING_SHELL_DATA(data, GetOSVersion(), veh_shell_base, veh_shell_size);
+		if (!mm_data)
+		{
+			result = 0;
+
+			goto MM_FAIL;
+		}
 
 		mm_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(MANUAL_MAPPING_SHELL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 		if (!mm_data_base)
@@ -251,7 +276,7 @@ DWORD Inject(INJECTION_DATA* data)
 			goto MM_FAIL;
 		}
 
-		if (!WriteProcessMemory(h_proc, mm_data_base, &mm_data, sizeof(mm_data), NULL))
+		if (!WriteProcessMemory(h_proc, mm_data_base, mm_data, sizeof(MANUAL_MAPPING_SHELL_DATA), NULL))
 		{
 			ERRLOG("Inject: WriteProcessMemory error: %d", GetLastError());
 			
@@ -259,6 +284,7 @@ DWORD Inject(INJECTION_DATA* data)
 
 			goto MM_FAIL;
 		}
+
 
 		mm_shell_base = (BYTE*)VirtualAllocEx(h_proc, NULL, mm_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (!mm_shell_base)
@@ -292,6 +318,11 @@ DWORD Inject(INJECTION_DATA* data)
 		}
 
 	MM_FAIL:
+
+		if (mm_data)
+		{
+			delete mm_data;
+		}
 
 		if (mm_data_base)
 		{

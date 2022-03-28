@@ -2,10 +2,7 @@
 
 SymbolParser::~SymbolParser()
 {
-	if (!Cleanup())
-	{
-		throw std::exception("SymbolParser: Cleanup() error");
-	}
+	Cleanup();
 }
 
 bool SymbolParser::Cleanup()

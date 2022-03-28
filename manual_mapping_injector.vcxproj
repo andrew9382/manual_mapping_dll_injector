@@ -105,7 +105,8 @@
       <FunctionLevelLinking>
       </FunctionLevelLinking>
       <IntrinsicFunctions>false</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>
+      </SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <UndefinePreprocessorDefinitions>
@@ -114,14 +115,18 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ControlFlowGuard>false</ControlFlowGuard>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <OptimizeReferences>
+      </OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);Urlmon.lib;Wininet.lib;Dbghelp.lib</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -172,6 +177,7 @@
     <ClCompile Include="symbol_loader.cpp" />
     <ClCompile Include="symbol_parser.cpp" />
     <ClCompile Include="tools.cpp" />
+    <ClCompile Include="veh_shell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externs.hpp" />
@@ -187,11 +193,11 @@
     <ClInclude Include="NT Defs.h" />
     <ClInclude Include="NT Funcs.h" />
     <ClInclude Include="process_info.hpp" />
-    <ClInclude Include="some_defines.hpp" />
     <ClInclude Include="start_routine.hpp" />
     <ClInclude Include="symbol_loader.hpp" />
     <ClInclude Include="symbol_parser.hpp" />
     <ClInclude Include="tools.hpp" />
+    <ClInclude Include="veh_shell.hpp" />
     <ClInclude Include="Win10.h" />
     <ClInclude Include="Win11.h" />
     <ClInclude Include="Win7.h" />

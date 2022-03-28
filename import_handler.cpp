@@ -141,40 +141,45 @@ bool ResolveImports(SymbolLoader* loader)
 		return false;
 	}
 
-	if (!GetSymAddressNative(_FUNC_(NtQueryObject)))				return false;
-	if (!GetSymAddressNative(_FUNC_(NtQuerySystemInformation)))		return false;
+	if (!GetSymAddressNative(_FUNC_(NtQueryObject)))						return false;
+	if (!GetSymAddressNative(_FUNC_(NtQuerySystemInformation)))				return false;
 
-	if (!GetSymAddressNative(_FUNC_(LdrGetProcedureAddress)))		return false;
+	if (!GetSymAddressNative(_FUNC_(LdrGetProcedureAddress)))				return false;
 
-	if (!GetSymAddressNative(_FUNC_(LdrLoadDll)))					return false;
-	if (!GetSymAddressNative(_FUNC_(LdrUnloadDll)))					return false;
+	if (!GetSymAddressNative(_FUNC_(LdrLoadDll)))							return false;
+	if (!GetSymAddressNative(_FUNC_(LdrUnloadDll)))							return false;
 
-	if (!GetSymAddressNative(_FUNC_(LdrpHeap)))						return false;
-	if (!GetSymAddressNative(_FUNC_(LdrpMappingInfoIndex)))			return false;
-	if (!GetSymAddressNative(_FUNC_(LdrpModuleBaseAddressIndex)))	return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpHeap)))								return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpInvertedFunctionTable)))			return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpMappingInfoIndex)))					return false;
+	if (!GetSymAddressNative(_FUNC_(LdrpModuleBaseAddressIndex)))			return false;
 
-	if (!GetSymAddressNative(_FUNC_(RtlFreeHeap)))					return false;
+	if (!GetSymAddressNative(_FUNC_(RtlFreeHeap)))							return false;
 
-	if (!GetSymAddressNative(_FUNC_(RtlAllocateHeap)))				return false;
-	if (!GetSymAddressNative(_FUNC_(NtAllocateVirtualMemory)))		return false;
-	if (!GetSymAddressNative(_FUNC_(NtFreeVirtualMemory)))			return false;
-	if (!GetSymAddressNative(_FUNC_(NtProtectVirtualMemory)))		return false;
+	if (!GetSymAddressNative(_FUNC_(RtlAllocateHeap)))						return false;
+	if (!GetSymAddressNative(_FUNC_(NtAllocateVirtualMemory)))				return false;
+	if (!GetSymAddressNative(_FUNC_(NtFreeVirtualMemory)))					return false;
+	if (!GetSymAddressNative(_FUNC_(NtProtectVirtualMemory)))				return false;
+	if (!GetSymAddressNative(_FUNC_(LdrProtectMrdata)))						return false;
 
-	if (!GetSymAddressNative(_FUNC_(memmove)))						return false;
-	if (!GetSymAddressNative(_FUNC_(memset)))						return false;
+	if (!GetSymAddressNative(_FUNC_(memmove)))								return false;
+	if (!GetSymAddressNative(_FUNC_(memset)))								return false;
 
-	if (!GetSymAddressNative(_FUNC_(NtOpenFile)))					return false;
-	if (!GetSymAddressNative(_FUNC_(NtClose)))						return false;
-	if (!GetSymAddressNative(_FUNC_(NtSetInformationFile)))			return false;
-	if (!GetSymAddressNative(_FUNC_(NtQueryInformationFile)))		return false;
-	if (!GetSymAddressNative(_FUNC_(NtReadFile)))					return false;
+	if (!GetSymAddressNative(_FUNC_(NtOpenFile)))							return false;
+	if (!GetSymAddressNative(_FUNC_(NtClose)))								return false;
+	if (!GetSymAddressNative(_FUNC_(NtSetInformationFile)))					return false;
+	if (!GetSymAddressNative(_FUNC_(NtQueryInformationFile)))				return false;
+	if (!GetSymAddressNative(_FUNC_(NtReadFile)))							return false;
 
-	if (!GetSymAddressNative(_FUNC_(LdrLockLoaderLock)))			return false;
-	if (!GetSymAddressNative(_FUNC_(LdrUnlockLoaderLock)))			return false;
+	if (!GetSymAddressNative(_FUNC_(LdrLockLoaderLock)))					return false;
+	if (!GetSymAddressNative(_FUNC_(LdrUnlockLoaderLock)))					return false;
 
-	if (!GetSymAddressNative(_FUNC_(NtCreateThreadEx)))				return false;
+	if (!GetSymAddressNative(_FUNC_(NtCreateThreadEx)))						return false;
 	
-	if (!GetSymAddressNative(_FUNC_(RtlRbRemoveNode)))				return false;
+	if (!GetSymAddressNative(_FUNC_(RtlRbRemoveNode)))						return false;
+	if (!GetSymAddressNative(_FUNC_(RtlAddVectoredExceptionHandler)))		return false;
+	if (!GetSymAddressNative(_FUNC_(RtlRemoveVectoredExceptionHandler)))	return false;
+	if (!GetSymAddressNative(_FUNC_(RtlInsertInvertedFunctionTable)))		return false;
 	
 	return true;
 }

@@ -9,7 +9,7 @@
 #define RELOC_FLAG RELOC_FLAG32
 #endif
 
-using f_DLL_ENTRY_POINT  = BOOL     (WINAPI*) (HINSTANCE hDll, DWORD dwReason, HINSTANCE pReserved);
+using f_DLL_ENTRY_POINT = BOOL (WINAPI*) (HINSTANCE hDll, DWORD dwReason, HINSTANCE pReserved);
 
 struct MANUAL_MAP_FUNCTION_TABLE
 {
@@ -29,6 +29,11 @@ struct MANUAL_MAP_FUNCTION_TABLE
 	NT_LOCAL(NtReadFile);
 	NT_LOCAL(LdrLockLoaderLock);
 	NT_LOCAL(LdrUnlockLoaderLock);
+	NT_LOCAL(LdrProtectMrdata);
+	NT_LOCAL(RtlAddVectoredExceptionHandler);
+	NT_LOCAL(LdrpInvertedFunctionTable);
+	NT_LOCAL(RtlInsertInvertedFunctionTable);
+	NT_LOCAL(RtlRemoveVectoredExceptionHandler);
 
 	WIN32_LOCAL(LoadLibraryA); // used temporary
 	WIN32_LOCAL(FreeLibrary); // used temporary
@@ -41,12 +46,17 @@ struct MANUAL_MAP_FUNCTION_TABLE
 struct MANUAL_MAPPING_SHELL_DATA
 {
 	HMODULE			out_module_base		= 0;
-	wchar_t         dll_path[MAX_PATH]  = { 0 };
 	DWORD			flags				= 0;
+	DWORD			os_version			= 0;
+	void*			veh_shell			= nullptr;
+	DWORD			veh_shell_size		= 0;
+	HANDLE			h_veh				= 0;
+	wchar_t         dll_path[MAX_PATH]  = { 0 };
+	
 
 	MANUAL_MAP_FUNCTION_TABLE f_table;
 
-	MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data);
+	MANUAL_MAPPING_SHELL_DATA(INJECTION_DATA* data, DWORD os_version, void* veh_shell_base, DWORD veh_shell_size);
 };
 
 

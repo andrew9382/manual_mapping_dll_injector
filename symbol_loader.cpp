@@ -210,7 +210,9 @@ bool SymbolLoader::Initialize(const wchar_t* dll_path, const wchar_t* pdb_path, 
 		return false;
 	}
 
-	for (DWORD i = 0; i < file_header->NumberOfSections; ++i)
+	memcpy(local_image_base, file_raw, x86 ? opt_header86->SizeOfHeaders : opt_header64->SizeOfHeaders);
+
+	for (DWORD i = 0; i < file_header->NumberOfSections; ++i, ++first_section)
 	{
 		if (first_section->SizeOfRawData)
 		{

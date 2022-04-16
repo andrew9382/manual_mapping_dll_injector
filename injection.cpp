@@ -340,8 +340,8 @@ DWORD Inject(INJECTION_DATA* data)
 
 		size_t llib_size = (size_t)InjectInternal_End - (size_t)InjectInternal;
 
-		BYTE* llib_data_base = nullptr;
-		BYTE* llib_shell_base = nullptr;
+		BYTE* llib_data_base	= nullptr;
+		BYTE* llib_shell_base	= nullptr;
 
 		llib_data_base = (BYTE*)VirtualAllocEx(h_proc, NULL, sizeof(INJECT_INTERNAL_DATA), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 		if (!llib_data_base)

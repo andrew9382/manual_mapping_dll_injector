@@ -9,7 +9,7 @@
 #define INJ_SCRAMBLE_DLL_NAME       0x08 // randomize name of a dll before load it
 #define INJ_LOAD_DLL_COPY           0x20 // load copy of a dll from TEMP dir
 
-// thread cloaking options (ignored if launch method not NtCreateThreadEx): 
+// thread cloaking options (ignored if launch method is not NtCreateThreadEx): 
 #define INJ_CTX_HIDE_FROM_DEBUGGER  0x0040
 #define INJ_CTX_FAKE_THREAD_ID      0x0080
 #define INJ_CTX_FAKE_START_ADDRESS  0x0100
